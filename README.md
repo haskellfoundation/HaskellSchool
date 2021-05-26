@@ -1,5 +1,8 @@
 # Elixir School
 
+> Haskell school was built on the model and using the code of elixir school.
+> You can find elixir school at [ElixirSchool.com](https://elixirschool.com).
+
 > Elixir School is the premier destination for people seeking to learn and master the Elixir programming language.
 
 You can access lessons at [ElixirSchool.com](https://elixirschool.com).
