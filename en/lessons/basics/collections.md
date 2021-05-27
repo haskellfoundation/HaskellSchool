@@ -3,48 +3,135 @@ version: 1.3.1
 title: Collections
 ---
 
-Lists, tuples, keyword lists, and maps.
+Tuples, Lists, Assoc Lists, Sets, Maps and Hashmaps.
 
 {% include toc.html %}
 
-## Lists
+## Tuples
 
-Lists are simple collections of values which may include multiple types; lists may also include non-unique values:
+Tuples are the first kind of collection you are introduced to in haskell. This is because they are simple, primitive, and have a terse, flexible, built in syntax. Tuples are sometimes referred to as anonymous records, but instead of referencing fields by name you reference them by position in the structure. Tuples can contain an arbitrary number of items, but we will focus on the 2-tuple since haskell has good built in support for them. However, if you are interested this is what an 8-tuple looks like
 
-```elixir
-iex> [3.14, :pie, "Apple"]
-[3.14, :pie, "Apple"]
+```haskell
+Prelude> :t ('0','1','2','3','4','5','6',"8-tuple")
+('0','1','2','3','4','5','6',"8-tuple")
+  :: (Char, Char, Char, Char, Char, Char, Char, [Char])
+```
+__Note__: `:t` in the ghci repl shows the type of the value, it will print out a message of the form `term :: Type`
+
+### Constructing Tuples
+
+We can construct tuples using a familiar syntax `(a,b)`.
+
+```haskell
+Prelude> myTuple = (1 :: Int,"hello")
+Prelude> :t myTuple
+myTuple :: (Int, [Char])
 ```
 
-Elixir implements list collections as linked lists.
+### Consuming Tuples
+
+We can consume tuples by breaking them apart. With a 2-tuple the options are pretty simple. They have the predictable names `fst` and `snd`
+
+```haskell
+Prelude> fst myTuple
+1
+Prelude> snd myTuple
+"hello"
+```
+
+We can also pattern match on tuples to extract their contents.
+
+```haskell
+Prelude> (\(a,b) -> a + 2) $ myTuple
+3
+Prelude> (\(a,b) -> b ++ " world") $ myTuple
+"string world"
+```
+
+### Limitations of Tuples
+
+There are a couple of limitations with tuples in haskell. First, they are closed; you cannot add an additional item once the tuple of length n has been defined. Second, the types are fixed; once a tuple has a concrete type you cannot add an element of a different type. You can get around this with specialized functions, but they do not generalize to all tuples lengths.
+
+Here is an example of increasing the tuple's length.
+
+```haskell
+Prelude> twoTupleToThreeTuple c (a,b) = (a,b,c)
+Prelude> twoTupleToThreeTuple () myTuple
+(1,"world",())
+```
+
+Here is an example of changing a tuple's type.
+
+```haskell
+Prelude> :t myTuple
+myTuple :: (Int, [Char])
+Prelude> :t substituteFst "hello" myTuple
+substituteFst "hello" myTuple :: ([Char], [Char])
+Prelude> substituteFst "hello" myTuple
+("hello","world")
+```
+## Lists
+
+From a usability perspective, Lists solve the problem of extensibility that tuples face, but they can only contain one type (in other words they are homogenous). Lists also have a special built in syntax.
+
+```haskell
+Prelude> [1,2,3,4]
+[1,2,3,4]
+```
+
+Haskell implements list collections as linked lists.
 This means that accessing the list length is an operation that will run in linear time (`O(n)`).
 For this reason, it is typically faster to prepend than to append:
 
-```elixir
-iex> list = [3.14, :pie, "Apple"]
-[3.14, :pie, "Apple"]
+```Haskell
+iex> list = ["Orange", "Banana", "Apple"]
+["Orange", "Banana", "Apple"]
 # Prepending (fast)
-iex> ["π" | list]
-["π", 3.14, :pie, "Apple"]
+iex> "Grape" : list
+["Grape", "Orange", "Banana", "Apple"]
 # Appending (slow)
 iex> list ++ ["Cherry"]
-[3.14, :pie, "Apple", "Cherry"]
+["Orange", "Banana", "Apple", "Cherry"]
 ```
+
+Lists are also a first introduction to an "inductive" or "recursive" type. Here is an example that is identical to the haskell implementation without the syntactic sugar (we use backticks to add infix syntax).
+
+```haskell
+data List a = Nil | a `Cons` List a
+```
+
+You can see that this type is recursive. `Nil` is the base case, and the `Cons` constructor joins an `a` and a recursive call to `List a`. You can also see why lists can only contain 1 type, because the `a` is threaded through the entire structure. In our definition we can replace `Nil` with the empty list `[]` and `Cons` with `:` to get back to the builtin syntax.
+
+In that case our original example breaks down like so:
+
+```haskell
+Prelude> [1,2,3,4]
+[1,2,3,4]
+Prelude> 1 : 2 : 3 : 4 : []
+[1,2,3,4]
+Prelude> 1 `Cons` 2 `Cons` 3 `Cons` 4 `Cons` Nil
+1 `Cons` (2 `Cons` (3 `Cons` (4 `Cons` Nil)))
+```
+__Note__: If you want to get the `List` example working in ghci you will have to input some special commands to make it work ``data List a = Nil | a `Cons` List a deriving Show; infixr 5 `Cons`;``.
+
 
 ### List Concatenation
 
-List concatenation uses the `++/2` operator:
+List concatenation uses the `++` operator:
 
-```elixir
-iex> [1, 2] ++ [3, 4, 1]
+```haskell
+Prelude> [1, 2] ++ [3, 4, 1]
 [1, 2, 3, 4, 1]
 ```
 
-A side note about the name (`++/2`) format used above:
-In Elixir (and Erlang, upon which Elixir is built), a function or operator name has two components: the name you give it (here `++`) and its _arity_.
-Arity is a core part of speaking about Elixir (and Erlang) code.
-It is the number of arguments a given function takes (two, in this case).
-Arity and the given name are combined with a slash. We'll talk more about this later; this knowledge will help you understand the notation for now.
+A side note about another operator that you might come across `<>`, this is an example of typeclass abstraction in haskell, it allows us to associate specific implementations of functions (and operators) with specific types. In the case of lists `<>` is exactly `++` under the hood. The full typeclass implemetation looks like this:
+
+```haskell
+instance Semigroup [a] where
+  (<>) = (++)
+```
+
+The keywords aren't important, but it should give you an intuition for when you see `<>` which just means concatenation for a specific type!
 
 ### List Subtraction
 
