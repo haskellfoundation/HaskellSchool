@@ -1,2 +1,2 @@
 User-agent: *
-Sitemap: https://elixirschool.com/sitemap.xml
+Sitemap: https://school.haskell.org/sitemap.xml
