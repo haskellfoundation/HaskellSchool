@@ -3,7 +3,7 @@ version: 1.3.1
 title: Collections
 ---
 
-Tuples, Lists, Assoc Lists, Sets, Maps and Hashmaps.
+Tuples, Lists, Assoc Lists, Sets, Maps/Hashmaps, Seqs, and Vectors.
 
 {% include toc.html %}
 
@@ -12,7 +12,7 @@ Tuples, Lists, Assoc Lists, Sets, Maps and Hashmaps.
 Tuples are the first kind of collection you are introduced to in haskell. This is because they are simple, primitive, and have a terse, flexible, built in syntax. Tuples are sometimes referred to as anonymous records, but instead of referencing fields by name you reference them by position in the structure. Tuples can contain an arbitrary number of items, but we will focus on the 2-tuple since haskell has good built in support for them. However, if you are interested this is what an 8-tuple looks like
 
 ```haskell
-Prelude> :t ('0','1','2','3','4','5','6',"8-tuple")
+ghci> :t ('0','1','2','3','4','5','6',"8-tuple")
 ('0','1','2','3','4','5','6',"8-tuple")
   :: (Char, Char, Char, Char, Char, Char, Char, [Char])
 ```
@@ -23,8 +23,8 @@ __Note__: `:t` in the ghci repl shows the type of the value, it will print out a
 We can construct tuples using a familiar syntax `(a,b)`.
 
 ```haskell
-Prelude> myTuple = (1 :: Int,"hello")
-Prelude> :t myTuple
+ghci> myTuple = (1 :: Int,"hello")
+ghci> :t myTuple
 myTuple :: (Int, [Char])
 ```
 
@@ -33,18 +33,18 @@ myTuple :: (Int, [Char])
 We can consume tuples by breaking them apart. With a 2-tuple the options are pretty simple. They have the predictable names `fst` and `snd`
 
 ```haskell
-Prelude> fst myTuple
+ghci> fst myTuple
 1
-Prelude> snd myTuple
+ghci> snd myTuple
 "hello"
 ```
 
 We can also pattern match on tuples to extract their contents.
 
 ```haskell
-Prelude> (\(a,b) -> a + 2) $ myTuple
+ghci> (\(a,b) -> a + 2) $ myTuple
 3
-Prelude> (\(a,b) -> b ++ " world") $ myTuple
+ghci> (\(a,b) -> b ++ " world") $ myTuple
 "string world"
 ```
 
@@ -55,19 +55,19 @@ There are a couple of limitations with tuples in haskell. First, they are closed
 Here is an example of increasing the tuple's length.
 
 ```haskell
-Prelude> twoTupleToThreeTuple c (a,b) = (a,b,c)
-Prelude> twoTupleToThreeTuple () myTuple
+ghci> twoTupleToThreeTuple c (a,b) = (a,b,c)
+ghci> twoTupleToThreeTuple () myTuple
 (1,"world",())
 ```
 
 Here is an example of changing a tuple's type.
 
 ```haskell
-Prelude> :t myTuple
+ghci> :t myTuple
 myTuple :: (Int, [Char])
-Prelude> :t substituteFst "hello" myTuple
+ghci> :t substituteFst "hello" myTuple
 substituteFst "hello" myTuple :: ([Char], [Char])
-Prelude> substituteFst "hello" myTuple
+ghci> substituteFst "hello" myTuple
 ("hello","world")
 ```
 ## Lists
@@ -75,7 +75,7 @@ Prelude> substituteFst "hello" myTuple
 From a usability perspective, Lists solve the problem of extensibility that tuples face, but they can only contain one type (in other words they are homogenous). Lists also have a special built in syntax.
 
 ```haskell
-Prelude> [1,2,3,4]
+ghci> [1,2,3,4]
 [1,2,3,4]
 ```
 
@@ -105,11 +105,11 @@ You can see that this type is recursive. `Nil` is the base case, and the `Cons` 
 In that case our original example breaks down like so:
 
 ```haskell
-Prelude> [1,2,3,4]
+ghci> [1,2,3,4]
 [1,2,3,4]
-Prelude> 1 : 2 : 3 : 4 : []
+ghci> 1 : 2 : 3 : 4 : []
 [1,2,3,4]
-Prelude> 1 `Cons` 2 `Cons` 3 `Cons` 4 `Cons` Nil
+ghci> 1 `Cons` 2 `Cons` 3 `Cons` 4 `Cons` Nil
 1 `Cons` (2 `Cons` (3 `Cons` (4 `Cons` Nil)))
 ```
 __Note__: If you want to get the `List` example working in ghci you will have to input some special commands to make it work ``data List a = Nil | a `Cons` List a deriving Show; infixr 5 `Cons`;``.
@@ -120,7 +120,7 @@ __Note__: If you want to get the `List` example working in ghci you will have to
 List concatenation uses the `++` operator:
 
 ```haskell
-Prelude> [1, 2] ++ [3, 4, 1]
+ghci> [1, 2] ++ [3, 4, 1]
 [1, 2, 3, 4, 1]
 ```
 
@@ -138,8 +138,8 @@ The keywords aren't important, but it should give you an intuition for when you 
 Support for difference is provided via the `\\` operator; it's safe to subtract a missing value:
 
 ```haskell
-Prelude> import Data.List
-Prelude Data.List> ["foo", "bar", "baz"] \\ ["quux", "bar"]
+ghci> import Data.List
+ghci> ["foo", "bar", "baz"] \\ ["quux", "bar"]
 ["foo","baz"]
 ```
 
@@ -148,14 +148,14 @@ __Note__: `import` syntax may be new to you, but this allows us to pull in libra
 Be mindful of duplicate values. For every element on the right, the first occurrence of it gets removed from the left:
 
 ```haskell
-Prelude Data.List> ["foo", "bar", "baz", "bar"] \\ ["quux", "bar"]
+ghci> ["foo", "bar", "baz", "bar"] \\ ["quux", "bar"]
 ["foo","baz","bar"]
 ```
 
 List difference uses an [equality](../basics/#comparison) instance for your specific type, to match values. We can see this in the type.
 
 ```haskell
-Prelude Data.List> :t (\\)
+ghci> :t (\\)
 (\\) :: Eq a => [a] -> [a] -> [a]
 ```
 
@@ -169,25 +169,25 @@ The head is the list's first element, while the tail is a list containing the re
 Haskell provides two helpful functions, `head` and `tail`, for working with these parts:
 
 ```haskell
-Prelude Data.List> head ["Orange", "Banana", "Apple"]
+ghci> head ["Orange", "Banana", "Apple"]
 "Orange"
-Prelude Data.List> tail ["Orange", "Banana", "Apple"]
+ghci> tail ["Orange", "Banana", "Apple"]
 ["Banana","Apple"]
 ```
 
 Unfortunately these functions reveal an ugly part of the language's base library, some of the functions are partial. This means that they do not cover the full domain of possible inputs.
 
 ```haskell
-Prelude Data.List> head ["Orange", "Banana", "Apple"]
+ghci> head ["Orange", "Banana", "Apple"]
 "Orange"
-Prelude Data.List> tail ["Orange", "Banana", "Apple"]
+ghci> tail ["Orange", "Banana", "Apple"]
 ["Banana","Apple"]
 ```
 
 We can use a common idiom in haskell for covering partial functions in a safe way, the `Maybe` type. This allows us to say that unhandled inputs return a `Nothing`. Now the caller of this maybe-returning-function must handle the `Nothing` case, but in return they are not faced with a nasty runtime exception.
 
 ```haskell
-Prelude Data.List> :i Maybe
+ghci> :i Maybe
 data Maybe a = Nothing | Just a 	-- Defined in ‘GHC.Maybe’
 ...
 ```
@@ -197,22 +197,22 @@ __Note__: `:i` in ghci will give you some information about the type, the first 
 Now we can define a total head and tail function using pattern matching!
 
 ```haskell
-Prelude Data.List> :{
-Prelude Data.List| safeHead :: [a] -> Maybe a
-Prelude Data.List| safeHead [] = Nothing
-Prelude Data.List| safeHead (x:xs) = Just x
-Prelude Data.List|
-Prelude Data.List| safeTail :: [a] -> Maybe [a]
-Prelude Data.List| safeTail [] = Nothing
-Prelude Data.List| safeTail (x:xs) = Just xs
-Prelude Data.List| :}
-Prelude Data.List> safeHead ["Orange", "Banana", "Apple"]
+ghci> :{
+ghci Data.List| safeHead :: [a] -> Maybe a
+ghci Data.List| safeHead [] = Nothing
+ghci Data.List| safeHead (x:xs) = Just x
+ghci Data.List|
+ghci Data.List| safeTail :: [a] -> Maybe [a]
+ghci Data.List| safeTail [] = Nothing
+ghci Data.List| safeTail (x:xs) = Just xs
+ghci Data.List| :}
+ghci> safeHead ["Orange", "Banana", "Apple"]
 Just "Orange"
-Prelude Data.List> safeHead []
+ghci> safeHead []
 Nothing
-Prelude Data.List> safeTail ["Orange", "Banana", "Apple"]
+ghci> safeTail ["Orange", "Banana", "Apple"]
 Just ["Banana","Apple"]
-Prelude Data.List> safeTail []
+ghci> safeTail []
 Nothing
 ```
 
