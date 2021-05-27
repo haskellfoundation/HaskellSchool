@@ -144,7 +144,7 @@ is an example that is identical to the Haskell implementation without the
 syntactic sugar (we use backticks to add infix syntax).
 
 ```haskell
-data List a = Nil | a `Cons` List a
+data List a = Nil | Cons a (List a)
 ```
 
 You can see that this type is recursive. `Nil` is the base case, and the `Cons`
@@ -160,12 +160,9 @@ ghci> [1,2,3,4]
 [1,2,3,4]
 ghci> 1 : 2 : 3 : 4 : []
 [1,2,3,4]
-ghci> 1 `Cons` 2 `Cons` 3 `Cons` 4 `Cons` Nil
-1 `Cons` (2 `Cons` (3 `Cons` (4 `Cons` Nil)))
+ghci> Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))
+Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))
 ```
-__Note__: If you want to get the `List` example working in ghci you will have to
-input some special commands to make it work ``data List a = Nil | a `Cons` List
-a deriving Show; infixr 5 `Cons`;``.
 
 ### List Performance
 
@@ -328,23 +325,41 @@ rather than the required `NonEmpty` type.
 
 ## Assoc lists
 
-Keyword lists and maps are the associative collections of Elixir.
-In Elixir, a keyword list is a special list of two-element tuples whose first element is an atom; they share performance with lists:
+So far we have only been able to access values via position indexed lookup, or
+pattern matching. However, one of the most common use cases for containers is
+acting as a key value store. Assoc(iation) lists provide this by combining
+2-tuples and regular lists. Since assoc lists are really just the combination
+of two existing data types, the only thing we need is a lookup function, which
+is provided in the `Data.List` module in base.
 
-```elixir
-iex> [foo: "bar", hello: "world"]
-[foo: "bar", hello: "world"]
-iex> [{:foo, "bar"}, {:hello, "world"}]
-[foo: "bar", hello: "world"]
+```haskell
+ghci> assoc = [("foo", True), ("bar", False)]
+ghci> :t assoc
+assoc :: [(String, Bool)]
+ghci> :t lookup
+lookup :: Eq a => a -> [(a, b)] -> Maybe b
+ghci> lookup "foo" assoc
+Just True
+ghci> lookup "bar" assoc
+Just False
+ghci> lookup "baz" assoc
+Nothing
 ```
 
-The three characteristics of keyword lists highlight their importance:
+We can see the pattern again where undefined behaviour is encoded using the
+`Maybe` type, so that we can have a complete functions with errors at compile
+time rather than runtime.
 
-+ Keys are atoms.
-+ Keys are ordered.
-+ Keys do not have to be unique.
+It is also interesting to note the `Eq a` constraint on the "key" which allows
+the lookup function to do an equality comparison on them.
 
-For these reasons, keyword lists are most commonly used to pass options to functions.
+While assoc lists are a nice introduction to key value collections that build
+on the previous types we learned about they are not particularly useful. A list
+simply isn't a very good data structure for lookup, as it provides worst case
+`O(n)` asymptotics. Assoc lists are usually an intermediate data structure
+which Haskell programmers will usually convert into a `Map`. Although this
+conversion is itself an `O(n*log n)` operation it provides an `O(log n)`
+lookup.
 
 ## Maps
 
