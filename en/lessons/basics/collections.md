@@ -9,12 +9,14 @@ Tuples, Lists, Assoc Lists, Sets, Maps/Hashmaps, Seqs, and Vectors.
 
 ## Tuples
 
-Tuples are the first kind of collection you are introduced to in haskell. This
+Tuples are the first kind of collection you are introduced to in Haskell. This
 is because they are simple, primitive, and have a terse, flexible, built in
 syntax. Tuples are sometimes referred to as anonymous records, but instead of
 referencing fields by name you reference them by position in the structure.
-Tuples can contain an arbitrary number of items, but we will focus on the
-2-tuple since haskell has good built in support for them. However, if you are
+Tuples can contain an arbitrary number of items, well this is not entirely
+true, the Haskell Report only requires up to 15-tuples and GHC comes with
+support for 62-tuples, but usually that is enough.We will focus on the 2-tuple
+since Haskell has good built in support for them. However, if you are
 interested this is what an 8-tuple looks like
 
 ```haskell
@@ -92,7 +94,7 @@ ghci> (\(a,b) -> b ++ " world") myTuple
 
 ### Limitations of Tuples
 
-The main limitation with tuples in haskell is that each different length of
+The main limitation with tuples in Haskell is that each different length of
 tuple is a distinct data type. That means there is no general function to add an
 additional element to any tuple. Rather these kinds of functions need to be
 defined ad hoc.
@@ -138,7 +140,7 @@ ghci> ["hello", True]
 ### Inductive Types
 
 Lists are also a first introduction to an "inductive" or "recursive" type. Here
-is an example that is identical to the haskell implementation without the
+is an example that is identical to the Haskell implementation without the
 syntactic sugar (we use backticks to add infix syntax).
 
 ```haskell
@@ -240,13 +242,13 @@ library, some of the functions are partial. This means that they do not cover
 the full domain of possible inputs.
 
 ```haskell
-ghci> head ["Orange", "Banana", "Apple"]
-"Orange"
-ghci> tail ["Orange", "Banana", "Apple"]
-["Banana","Apple"]
+ghci> head []
+*** Exception: Prelude.head: empty list
+ghci> tail []
+*** Exception: Prelude.tail: empty list
 ```
 
-We can use a common idiom in haskell for covering partial functions in a safe
+We can use a common idiom in Haskell for covering partial functions in a safe
 way, the `Maybe` type. This allows us to say that unhandled inputs return a
 `Nothing`. Now the caller of this maybe-returning-function must handle the
 `Nothing` case, but in return they are not faced with a nasty runtime exception.
@@ -264,14 +266,14 @@ Now we can define a total head and tail function using pattern matching!
 
 ```haskell
 ghci> :{
-ghci Data.List| safeHead :: [a] -> Maybe a
-ghci Data.List| safeHead [] = Nothing
-ghci Data.List| safeHead (x:xs) = Just x
-ghci Data.List|
-ghci Data.List| safeTail :: [a] -> Maybe [a]
-ghci Data.List| safeTail [] = Nothing
-ghci Data.List| safeTail (x:xs) = Just xs
-ghci Data.List| :}
+| safeHead :: [a] -> Maybe a
+| safeHead [] = Nothing
+| safeHead (x:xs) = Just x
+|
+| safeTail :: [a] -> Maybe [a]
+| safeTail [] = Nothing
+| safeTail (x:xs) = Just xs
+| :}
 ghci> safeHead ["Orange", "Banana", "Apple"]
 Just "Orange"
 ghci> safeHead []
