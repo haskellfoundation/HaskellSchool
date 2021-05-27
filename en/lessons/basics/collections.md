@@ -133,77 +133,94 @@ instance Semigroup [a] where
 
 The keywords aren't important, but it should give you an intuition for when you see `<>` which just means concatenation for a specific type!
 
-### List Subtraction
+### List Difference
 
-Support for subtraction is provided via the `--/2` operator; it's safe to subtract a missing value:
+Support for difference is provided via the `\\` operator; it's safe to subtract a missing value:
 
-```elixir
-iex> ["foo", :bar, 42] -- [42, "bar"]
-["foo", :bar]
+```haskell
+Prelude> import Data.List
+Prelude Data.List> ["foo", "bar", "baz"] \\ ["quux", "bar"]
+["foo","baz"]
 ```
 
-Be mindful of duplicate values.
-For every element on the right, the first occurrence of it gets removed from the left:
+__Note__: `import` syntax may be new to you, but this allows us to pull in libraries into the repl, and fortunately for us GHC ships with a list module in its base library!
 
-```elixir
-iex> [1,2,2,3,2,3] -- [1,2,3,2]
-[2, 3]
+Be mindful of duplicate values. For every element on the right, the first occurrence of it gets removed from the left:
+
+```haskell
+Prelude Data.List> ["foo", "bar", "baz", "bar"] \\ ["quux", "bar"]
+["foo","baz","bar"]
 ```
 
-**Note:** List subtraction uses [strict comparison](../basics/#comparison) to match the values. For example:
+List difference uses an [equality](../basics/#comparison) instance for your specific type, to match values. We can see this in the type.
 
-```elixir
-iex> [2] -- [2.0]
-[2]
-iex> [2.0] -- [2.0]
-[]
+```haskell
+Prelude Data.List> :t (\\)
+(\\) :: Eq a => [a] -> [a] -> [a]
 ```
+
+The `Eq a` on the left hand side of the constraint arrow `=>` means that all `a`'s on the right must provide an implementation of equality. This allows us to compare the elements in the list and subtract them.
 
 ### Head / Tail
 
 When using lists, it is common to work with a list's head and tail.
 The head is the list's first element, while the tail is a list containing the remaining elements.
-Elixir provides two helpful functions, `hd` and `tl`, for working with these parts:
 
-```elixir
-iex> hd [3.14, :pie, "Apple"]
-3.14
-iex> tl [3.14, :pie, "Apple"]
-[:pie, "Apple"]
+Haskell provides two helpful functions, `head` and `tail`, for working with these parts:
+
+```haskell
+Prelude Data.List> head ["Orange", "Banana", "Apple"]
+"Orange"
+Prelude Data.List> tail ["Orange", "Banana", "Apple"]
+["Banana","Apple"]
 ```
 
-In addition to the aforementioned functions, you can use [pattern matching](../pattern-matching/) and the cons operator `|` to split a list into head and tail. We'll learn more about this pattern in later lessons:
+Unfortunately these functions reveal an ugly part of the language's base library, some of the functions are partial. This means that they do not cover the full domain of possible inputs.
 
-```elixir
-iex> [head | tail] = [3.14, :pie, "Apple"]
-[3.14, :pie, "Apple"]
-iex> head
-3.14
-iex> tail
-[:pie, "Apple"]
+```haskell
+Prelude Data.List> head ["Orange", "Banana", "Apple"]
+"Orange"
+Prelude Data.List> tail ["Orange", "Banana", "Apple"]
+["Banana","Apple"]
 ```
 
-## Tuples
+We can use a common idiom in haskell for covering partial functions in a safe way, the `Maybe` type. This allows us to say that unhandled inputs return a `Nothing`. Now the caller of this maybe-returning-function must handle the `Nothing` case, but in return they are not faced with a nasty runtime exception.
 
-Tuples are similar to lists, but are stored contiguously in memory.
-This makes accessing their length fast but modification expensive; the new tuple must be copied entirely to memory.
-Tuples are defined with curly braces:
-
-```elixir
-iex> {3.14, :pie, "Apple"}
-{3.14, :pie, "Apple"}
+```haskell
+Prelude Data.List> :i Maybe
+data Maybe a = Nothing | Just a 	-- Defined in ‘GHC.Maybe’
+...
 ```
 
-It is common for tuples to be used as a mechanism to return additional information from functions; the usefulness of this will be more apparent when we get into [pattern matching](../pattern-matching/):
+__Note__: `:i` in ghci will give you some information about the type, the first line is the implementation.
 
-```elixir
-iex> File.read("path/to/existing/file")
-{:ok, "... contents ..."}
-iex> File.read("path/to/unknown/file")
-{:error, :enoent}
+Now we can define a total head and tail function using pattern matching!
+
+```haskell
+Prelude Data.List> :{
+Prelude Data.List| safeHead :: [a] -> Maybe a
+Prelude Data.List| safeHead [] = Nothing
+Prelude Data.List| safeHead (x:xs) = Just x
+Prelude Data.List|
+Prelude Data.List| safeTail :: [a] -> Maybe [a]
+Prelude Data.List| safeTail [] = Nothing
+Prelude Data.List| safeTail (x:xs) = Just xs
+Prelude Data.List| :}
+Prelude Data.List> safeHead ["Orange", "Banana", "Apple"]
+Just "Orange"
+Prelude Data.List> safeHead []
+Nothing
+Prelude Data.List> safeTail ["Orange", "Banana", "Apple"]
+Just ["Banana","Apple"]
+Prelude Data.List> safeTail []
+Nothing
 ```
 
-## Keyword lists
+__Note__: `:{` and `:}` allow you to write multiline definitions in ghci.
+
+Hooray! No more exceptions.
+
+## Assoc lists
 
 Keyword lists and maps are the associative collections of Elixir.
 In Elixir, a keyword list is a special list of two-element tuples whose first element is an atom; they share performance with lists:
