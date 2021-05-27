@@ -9,20 +9,35 @@ Tuples, Lists, Assoc Lists, Sets, Maps/Hashmaps, Seqs, and Vectors.
 
 ## Tuples
 
-Tuples are the first kind of collection you are introduced to in haskell. This is because they are simple, primitive, and have a terse, flexible, built in syntax. Tuples are sometimes referred to as anonymous records, but instead of referencing fields by name you reference them by position in the structure. Tuples can contain an arbitrary number of items, but we will focus on the 2-tuple since haskell has good built in support for them. However, if you are interested this is what an 8-tuple looks like
+Tuples are the first kind of collection you are introduced to in haskell. This
+is because they are simple, primitive, and have a terse, flexible, built in
+syntax. Tuples are sometimes referred to as anonymous records, but instead of
+referencing fields by name you reference them by position in the structure.
+Tuples can contain an arbitrary number of items, but we will focus on the
+2-tuple since haskell has good built in support for them. However, if you are
+interested this is what an 8-tuple looks like
 
 ```haskell
-ghci> :t ('0','1','2','3','4','5','6',"8-tuple")
-('0','1','2','3','4','5','6',"8-tuple")
+ghci> :t ('0', '1', '2', '3', '4', '5', '6', "8-tuple")
+('0', '1', '2', '3', '4', '5', '6', "8-tuple")
   :: (Char, Char, Char, Char, Char, Char, Char, [Char])
 ```
-__Note__: `:t` in the ghci repl shows the type of the value, it will print out a message of the form `term :: Type`
+__Note__: `:t` in the ghci repl shows the type of the value, it will print out a
+message of the form `term :: Type`
 
 ### When to Use
 
-Tuples are not very flexible because they have a fixed length. This also means we have a lot of information about the structure of our data and therefore access is very perfomant `O(1)`. From a type safety perspective tuples are useful for associating data; saying "I required both of these things". For example if we wanted to represent a money transfer it wouldn't make sense to have just the amount or just the destination, we would want to group them `(Int, AccountId)`.
+Tuples are not very flexible because they have a fixed length. This also means
+we have a lot of information about the structure of our data and therefore
+access is very perfomant `O(1)`. From a type safety perspective tuples are
+useful for associating data; saying "I required both of these things". For
+example if we wanted to represent a money transfer it wouldn't make sense to
+have just the amount or just the destination, we would want to group them `(Int,
+AccountId)`.
 
-There is an interesting parallel between functions that require n arguments and functions that require n-tuples. While "curried" functions are arguably more useful due to partial application, these two modalities are equivalent.
+There is an interesting parallel between functions that require n arguments and
+functions that require n-tuples. While "curried" functions are arguably more
+useful due to partial application, these two modalities are equivalent.
 
 ```haskell
 ghci> :t (&&)
@@ -45,7 +60,9 @@ myTuple :: (Bool, [Char])
 
 ### Consuming Tuples
 
-We can consume tuples by breaking them apart. With a 2-tuple the options are pretty simple. They have the predictable names `fst` and `snd`, and are available in the standard library, so no need to import anything!
+We can consume tuples by breaking them apart. With a 2-tuple the options are
+pretty simple. They have the predictable names `fst` and `snd`, and are
+available in the standard library, so no need to import anything!
 
 ```haskell
 ghci> fst myTuple
@@ -54,7 +71,8 @@ ghci> snd myTuple
 "hello"
 ```
 
-The types of these functions simple, yet reveal exactly how they behave. `fst` picks the first element and `snd` picks the second element.
+The types of these functions simple, yet reveal exactly how they behave. `fst`
+picks the first element and `snd` picks the second element.
 
 ```haskell
 ghci> :t fst
@@ -74,7 +92,10 @@ ghci> (\(a,b) -> b ++ " world") myTuple
 
 ### Limitations of Tuples
 
-The main limitation with tuples in haskell is that each different length of tuple is a distinct data type. That means there is no general function to add an additional element to any tuple. Rather these kinds of functions need to be defined ad hoc.
+The main limitation with tuples in haskell is that each different length of
+tuple is a distinct data type. That means there is no general function to add an
+additional element to any tuple. Rather these kinds of functions need to be
+defined ad hoc.
 
 Here is an example of increasing the tuple's length.
 
@@ -84,7 +105,9 @@ ghci> twoTupleToThreeTuple () myTuple
 (1,"world",())
 ```
 
-Trying to call our function on a tuple of the incorrect length results in a type error telling us just as much; the function expected a 2-tuple but we gave it a 3-tuple.
+Trying to call our function on a tuple of the incorrect length results in a type
+error telling us just as much; the function expected a 2-tuple but we gave it a
+3-tuple.
 
 ```haskell
 ghci> twoTupleToThreeTuple True (1,2,3)
@@ -96,7 +119,9 @@ ghci> twoTupleToThreeTuple True (1,2,3)
 ```
 ## Lists
 
-From a usability perspective, Lists solve the problem of extensibility that tuples face, but they can only contain one type (in other words they are homogenous). Lists also have a special built in syntax.
+From a usability perspective, Lists solve the problem of extensibility that
+tuples face, but they can only contain one type (in other words they are
+homogenous). Lists also have a special built in syntax.
 
 ```haskell
 ghci> [1,2,3,4]
@@ -112,13 +137,19 @@ ghci> ["hello", True]
 
 ### Inductive Types
 
-Lists are also a first introduction to an "inductive" or "recursive" type. Here is an example that is identical to the haskell implementation without the syntactic sugar (we use backticks to add infix syntax).
+Lists are also a first introduction to an "inductive" or "recursive" type. Here
+is an example that is identical to the haskell implementation without the
+syntactic sugar (we use backticks to add infix syntax).
 
 ```haskell
 data List a = Nil | a `Cons` List a
 ```
 
-You can see that this type is recursive. `Nil` is the base case, and the `Cons` constructor joins an `a` and a recursive call to `List a`. You can also see why lists can only contain 1 type, because the `a` is threaded through the entire structure. In our definition we can replace `Nil` with the empty list `[]` and `Cons` with `:` to get back to the builtin syntax.
+You can see that this type is recursive. `Nil` is the base case, and the `Cons`
+constructor joins an `a` and a recursive call to `List a`. You can also see why
+lists can only contain 1 type, because the `a` is threaded through the entire
+structure. In our definition we can replace `Nil` with the empty list `[]` and
+`Cons` with `:` to get back to the builtin syntax.
 
 In that case our original example breaks down like so:
 
@@ -130,13 +161,16 @@ ghci> 1 : 2 : 3 : 4 : []
 ghci> 1 `Cons` 2 `Cons` 3 `Cons` 4 `Cons` Nil
 1 `Cons` (2 `Cons` (3 `Cons` (4 `Cons` Nil)))
 ```
-__Note__: If you want to get the `List` example working in ghci you will have to input some special commands to make it work ``data List a = Nil | a `Cons` List a deriving Show; infixr 5 `Cons`;``.
+__Note__: If you want to get the `List` example working in ghci you will have to
+input some special commands to make it work ``data List a = Nil | a `Cons` List
+a deriving Show; infixr 5 `Cons`;``.
 
 ### List Performance
 
-Haskell implements lists as linked lists. Where the cons cells (this operator is called a cons `:`) act as the links.
-This means that accessing the list length is an operation that will run in linear time (`O(n)`).
-For this reason, it is typically faster to prepend than to append:
+Haskell implements lists as linked lists. Where the cons cells (this operator is
+called a cons `:`) act as the links.  This means that accessing the list length
+is an operation that will run in linear time (`O(n)`).  For this reason, it is
+typically faster to prepend than to append:
 
 ```Haskell
 ghci> list = ["Orange", "Banana", "Apple"]
@@ -151,11 +185,25 @@ ghci> list ++ ["Cherry"]
 
 ### When to Use
 
-Linked lists are an extremely common data structure in functional programming, this means you are going to see them everywhere in Haskell. They are generally the first container a Haskell programmer reaches for.
-Because of slow append and relatively slow indexed access (O(n) where n is the index) they are generally used in situations where you know you are going to have to iterate over the entire data set, or you want to preserve the order of elements.
-A great example of an abstract data structure for which a linked list is a great concrete implementation are stacks. This is because pushing and popping are O(1).
-A bad use case would be for a queue, where either enqueue or dequeue would be O(n) depending on which side of the linked list you decide to insert into.
-A common real world example of where lists are used is database queries. A database query could return no results `[]`, or some `[entity..]`, and there is potentially and ordering to these results. The database library doesn't really care about indexed access, and so it leaves that consideration to the caller of the function.
+Linked lists are an extremely common data structure in functional programming,
+this means you are going to see them everywhere in Haskell. They are generally
+the first container a Haskell programmer reaches for.  Because of slow append
+and relatively slow indexed access (O(n) where n is the index) they are
+generally used in situations where you know you are going to have to iterate
+over the entire data set, or you want to preserve the order of elements.
+
+A great example of an abstract data structure for which a linked list is a great
+concrete implementation are stacks. This is because pushing and popping are
+O(1).
+
+A bad use case would be for a queue, where either enqueue or dequeue would be
+O(n) depending on which side of the linked list you decide to insert into.
+
+A common real world example of where lists are used is database queries. A
+database query could return no results `[]`, or some `[entity..]`, and there is
+potentially an ordering to these results. The database library doesn't really
+care about indexed access, and so it leaves that consideration to the caller of
+the function.
 
 ### List Concatenation
 
@@ -166,51 +214,19 @@ ghci> [1, 2] ++ [3, 4, 1]
 [1, 2, 3, 4, 1]
 ```
 
-A side note about another operator that you might come across `<>`. This operator is sometimes referred to as `mappend`, it represents generic concatenation. In other words any type that supports `<>` can be "appended". In the case of lists `<>` is exactly `++` under the hood.
-
-### List Difference
-
-Support for difference is provided via the `\\` operator; it's safe to subtract a missing value:
-
-```haskell
-ghci> import Data.List
-ghci> ["foo", "bar", "baz"] \\ ["quux", "bar"]
-["foo","baz"]
-```
-
-__Note__: `import` syntax may be new to you, but this allows us to pull in libraries into the repl, and fortunately for us GHC ships with a list module in its base library!
-
-Be mindful of duplicate values. For every element on the right, the first occurrence of it gets removed from the left:
-
-```haskell
-ghci> ["foo", "bar", "baz", "bar"] \\ ["quux", "bar"]
-["foo","baz","bar"]
-```
-
-List difference uses an [equality](../basics/#comparison) instance for your specific type, to match values. We can see this in the type.
-
-```haskell
-ghci> :t (\\)
-(\\) :: Eq a => [a] -> [a] -> [a]
-```
-
-The `Eq a` on the left hand side of the constraint arrow `=>` means that all `a`'s on the right must provide an implementation of equality. This allows us to compare the elements in the list and subtract them.
+A side note about another operator that you might come across `<>`. This
+operator is sometimes referred to as `mappend`, it represents generic
+concatenation. In other words any type that supports `<>` can be "appended". In
+the case of lists `<>` is exactly `++` under the hood.
 
 ### Head / Tail
 
-When using lists, it is common to work with a list's head and tail.
-The head is the list's first element, while the tail is a list containing the remaining elements.
+When using lists, it is common to work with a list's head and tail. The head is
+the list's first element, while the tail is a list containing the remaining
+elements.
 
-Haskell provides two helpful functions, `head` and `tail`, for working with these parts:
-
-```haskell
-ghci> head ["Orange", "Banana", "Apple"]
-"Orange"
-ghci> tail ["Orange", "Banana", "Apple"]
-["Banana","Apple"]
-```
-
-Unfortunately these functions reveal an ugly part of the language's base library, some of the functions are partial. This means that they do not cover the full domain of possible inputs.
+Haskell provides two helpful functions, `head` and `tail`, for working with
+these parts:
 
 ```haskell
 ghci> head ["Orange", "Banana", "Apple"]
@@ -219,7 +235,21 @@ ghci> tail ["Orange", "Banana", "Apple"]
 ["Banana","Apple"]
 ```
 
-We can use a common idiom in haskell for covering partial functions in a safe way, the `Maybe` type. This allows us to say that unhandled inputs return a `Nothing`. Now the caller of this maybe-returning-function must handle the `Nothing` case, but in return they are not faced with a nasty runtime exception.
+Unfortunately these functions reveal an ugly part of the language's base
+library, some of the functions are partial. This means that they do not cover
+the full domain of possible inputs.
+
+```haskell
+ghci> head ["Orange", "Banana", "Apple"]
+"Orange"
+ghci> tail ["Orange", "Banana", "Apple"]
+["Banana","Apple"]
+```
+
+We can use a common idiom in haskell for covering partial functions in a safe
+way, the `Maybe` type. This allows us to say that unhandled inputs return a
+`Nothing`. Now the caller of this maybe-returning-function must handle the
+`Nothing` case, but in return they are not faced with a nasty runtime exception.
 
 ```haskell
 ghci> :i Maybe
@@ -227,7 +257,8 @@ data Maybe a = Nothing | Just a 	-- Defined in ‘GHC.Maybe’
 ...
 ```
 
-__Note__: `:i` in ghci will give you some information about the type, the first line is the implementation.
+__Note__: `:i` in ghci will give you some information about the type, the first
+line is the implementation.
 
 Now we can define a total head and tail function using pattern matching!
 
@@ -255,7 +286,8 @@ __Note__: `:{` and `:}` allow you to write multiline definitions in ghci.
 
 Hooray! No more exceptions.
 
-Another collection that is the cousin of the list, and ensures that `head` and `tail` are safe is the nonempty list.
+Another collection that is the cousin of the list, and ensures that `head` and
+`tail` are safe is the nonempty list.
 
 ```haskell
 ghci> import Data.List.NonEmpty
@@ -265,8 +297,15 @@ data NonEmpty a = a :| [a]
   	-- Defined in ‘GHC.Base’
 ```
 
-From its definition we can see that `NonEmpty` requires the first element to be present. Despite its similarity to the sum constructor `|`, the `:|` constructor of `NonEmpty` is just a plane old binary constructor; just a fancy looking tuple!
-This handles the partiality problem the exact opposite way as the `Maybe` solution. Instead of forcing the caller of the function to guard against the ill-defined case when handling the result of the function, it forces them to construct a valid input up front (when calling the function).
+From its definition we can see that `NonEmpty` requires the first element to be
+present. Despite its similarity to the sum constructor `|`, the `:|` constructor
+of `NonEmpty` is just a plane old binary constructor; just a fancy looking
+tuple!
+
+This handles the partiality problem the exact opposite way as the
+`Maybe` solution. Instead of forcing the caller of the function to guard against
+the ill-defined case when handling the result of the function, it forces them to
+construct a valid input up front (when calling the function).
 
 ```haskell
 ghci> :t Data.List.NonEmpty.head
@@ -281,7 +320,9 @@ ghci> Data.List.NonEmpty.head []
     ...
 ```
 
-Notice that this time the error is not a runtime exception but a type error, the compiler is politely telling us that we tried to use a (potentially empty) list rather than the required `NonEmpty` type.
+Notice that this time the error is not a runtime exception but a type error, the
+compiler is politely telling us that we tried to use a (potentially empty) list
+rather than the required `NonEmpty` type.
 
 ## Assoc lists
 
