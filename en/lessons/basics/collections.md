@@ -346,91 +346,322 @@ ghci> lookup "baz" assoc
 Nothing
 ```
 
-We can see the pattern again where undefined behaviour is encoded using the
-`Maybe` type, so that we can have a complete functions with errors at compile
+We can see the pattern, again, where undefined behaviour is encoded using the
+`Maybe` type. This allows us to have complete functions with errors at compile
 time rather than runtime.
 
 It is also interesting to note the `Eq a` constraint on the "key" which allows
 the lookup function to do an equality comparison on them.
 
 While assoc lists are a nice introduction to key value collections that build
-on the previous types we learned about they are not particularly useful. A list
+on the previous types we learned about, they are not particularly useful. A list
 simply isn't a very good data structure for lookup, as it provides worst case
 `O(n)` asymptotics. Assoc lists are usually an intermediate data structure
 which Haskell programmers will usually convert into a `Map`. Although this
-conversion is itself an `O(n*log n)` operation it provides an `O(log n)`
+conversion is itself an `O(n*log n)` operation `Map` provides an `O(log n)`
 lookup.
+
+## Sets
+
+Sets are a very interesting container, the core concept of a set is membership.
+Although you can lookup elements by index, this is generally not advised since
+the interface makes no promises about what this index will be. Instead if is
+common to build up sets and test to see if an element exists in that set.
+
+A set can be constructed purely by inserting elements into the empty set
+
+```haskell
+ghci> import Data.Set
+ghci> :t empty
+empty :: Set a
+ghci> insert 1 (insert 2 (insert 3 empty))
+fromList [1,2,3]
+```
+
+Or by creating a set from a list
+
+```haskell
+ghci> fromList [4,3,2,1]
+fromList [1,2,3,4]
+```
+
+You might notice that the elements are sorted after turning them into a `Set`. This is
+becuase internally the `Set` data type depends on its contents being orderable. We can
+see this from the constraints on the `insert` and `fromList` functions.
+
+```haskell
+ghci> :t insert
+insert :: Ord a => a -> Set a -> Set a
+ghci> :t fromList
+fromList :: Ord a => [a] -> Set a
+```
+
+Sets have a very useful property, they cannot contain duplicates. This means that `insert`
+is idempotent.
+
+```haskell
+ghci> insert1 = insert 1
+ghci> insert1 empty
+fromList [1]
+ghci> insert1 (insert1 empty)
+fromList [1]
+ghci> insert1 (insert1 (insert1 empty))
+fromList [1]
+```
+__Note__: Idempotence is the property that some functions have, where calling the function
+multiple times has the same result. For idempotent function f `f a == f (f a)`.
+
+This also means that calling `toList` after `fromList` is an inefficient way to
+de-duplicate a list!
+
+```haskell
+ghci> toList $ fromList [1,1]
+[1]
+```
+
+Alright, let's see a use case for sets.
+
+```haskell
+ghci> :t member
+member :: Ord a => a -> Set a -> Bool
+ghci> evens = fromList [0,2..1000000]
+ghci> member 7 evens
+False
+ghci> member 200012 evens
+True
+ghci> isEven n = member n evens
+ghci> isEven 7
+False
+ghci> isEven 8
+True
+```
+
+You might say "hmmm a `1000000` limit for even numbers seems incorrect",
+and you would be correct. This highlights a property of sets in haskell, they
+are finite due to the strictness in the underlying implementation.
+
+### Difference
+
+Set difference is a good way to break apart a set based on a subset. Say I want
+to get a set of all consonants, and I have a set of all characters.
+
+```haskell
+ghci> alphabet = fromList ['a'..'z']
+ghci> alphabet
+fromList "abcdefghijklmnopqrstuvwxyz"
+ghci> vowels = fromList ['a', 'e', 'i', 'o', 'u', 'y']
+ghci> vowels
+fromList "aeiouy"
+ghci> difference alphabet vowels
+fromList "bcdfghjklmnpqrstvwxz"
+```
+
+This brings up a critical point of order! The `difference` function subtracts its second argument
+from the first, so mixing up your sets can lead to undesired behaviour.
+
+```haskell
+ghci> difference vowels alphabet
+fromList ""
+```
+
+You also may have noticed that `y`, which can be both a consonant and a vowel,
+was subtracted. Let's fix that.
+
+```haskell
+ghci> consonants = difference alphabet $ difference vowels (singleton 'y')
+ghci> consonants
+fromList "bcdfghjklmnpqrstvwxyz"
+```
+
+### Union
+
+Union's are useful for when we want to build up a new set from two smaller
+sets. We can actually rephrase the "set arithmetic" we used to construct the set
+of consonants in the previous example to use a `union`. If the `difference` function
+is kind of like subtraction, then the `union` function is kind of like addition.
+
+Here is the algebra in case you need convincing.
+
+```
+a - (b - c) = (a - b) + c
+4 - (2 - 1) = (4 - 2) + 1
+3 = 3
+```
+
+```haskell
+ghci> union (difference alphabet vowels) (singleton 'y')
+fromList "bcdfghjklmnpqrstvwxyz"
+ghci> consonants == union (difference alphabet vowels) (singleton 'y')
+True
+```
+
+There is an important difference between regular arithmetic and "set
+arithmetic", because sets cannot contain duplicates `union` does not always
+behave the same as `+`.
+
+In regular arithmetic this relationship still holds.
+
+```
+a - (b - c) = (a + c) - b
+4 - (2 - 1) = (4 + 1) - 2
+3 = 3
+```
+
+But it doesn't work for our example.
+
+```haskell
+ghci> difference (union alphabet $ singleton 'y') vowels
+fromList "bcdfghjklmnpqrstvwxz"
+```
+
+This is because `union alphabet $ singleton 'y'` is actually the same set as `alphabet`.
+
+### Intersection
+
+Intersection allows us to find elements that sets have in common.
+
+```haskell
+ghci> intersection vowels consonants
+fromList "y"
+```
+
+### Subsets
+
+Subsets allow us to detect if all the elements of a set are contained within another set.
+
+```haskell
+ghci> isSubsetOf vowels alphabet
+True
+ghci> isSubsetOf consonants alphabet
+True
+ghci> isSubsetOf alphabet vowels
+False
+ghci> isSubsetOf consonants vowels
+False
+```
+
+This function, like `difference`, has an order to the arguments. We are asking
+if the first argument is a subset of the second. From the example above you can
+see that `vowels` are a subset of the `alphabet` but not the other way around.
+
+### Cartesian Products
+
+Cartesion products, sometimes referred to as cross multiplication, allows us to
+get all the possible combinations of the elements of two sets.
+
+A classic example of a cartesian product is a chess board, which is the cross
+multiplication of the letters a - h and the numbers 1 - 8.
+
+```haskell
+ghci> ranks = fromList [1..8]
+ghci> files = fromList ['a'..'h']
+ghci> cartesianProduct files ranks
+fromList
+  [('a',1),('a',2),('a',3),('a',4),('a',5),('a',6),('a',7),('a',8)
+  ,('b',1),('b',2),('b',3),('b',4),('b',5),('b',6),('b',7),('b',8)
+  ,('c',1),('c',2),('c',3),('c',4),('c',5),('c',6),('c',7),('c',8)
+  ,('d',1),('d',2),('d',3),('d',4),('d',5),('d',6),('d',7),('d',8)
+  ,('e',1),('e',2),('e',3),('e',4),('e',5),('e',6),('e',7),('e',8)
+  ,('f',1),('f',2),('f',3),('f',4),('f',5),('f',6),('f',7),('f',8)
+  ,('g',1),('g',2),('g',3),('g',4),('g',5),('g',6),('g',7),('g',8)
+  ,('h',1),('h',2),('h',3),('h',4),('h',5),('h',6),('h',7),('h',8)
+  ]
+```
+
+You're can thank me when you ace the n-queens question on your next technical
+interview.
 
 ## Maps
 
-In Elixir, maps are the "go-to" key-value store.
-Unlike keyword lists, they allow keys of any type and are un-ordered.
-You can define a map with the `%{}` syntax:
+In Haskell, maps are the "go-to" key-value store, sometimes referred to as a
+dictionary.
 
-```elixir
-iex> map = %{:foo => "bar", "hello" => :world}
-%{:foo => "bar", "hello" => :world}
-iex> map[:foo]
-"bar"
-iex> map["hello"]
-:world
+While you can construct a `Map` with any type as the key and value, almost all
+functions that operate on maps require that the key has an ordering (`Ord k`).
+This is because the internal implementation of the `Map` type in haskell is a
+size balanced binary tree.
+
+The `Map` data type and the functions for interacting with it are exported from
+`Data.Map` which is a module in the `containers` package. Don't worry about
+dependencies though, containers is a core library and ships with ghci.
+
+The simplest way to construct a `Map` is to call `fromList` on an assoc list.
+
+```haskell
+ghci> letterToChar = [("a", 'a'), ("b", 'b'), ("c", 'c')]
+ghci> fromList letterToChar
+fromList [("a",'a'),("b",'b'),("c",'c')]
+ghci> letterToCharMap = fromList letterToChar
+ghci> :t letterToCharMap
+letterToCharMap :: Map String Char
+ghci> Data.Map.lookup "a" letterToCharMap
+Just 'a'
 ```
 
-As of Elixir 1.2, variables are allowed as map keys:
+__Note__: You might remember that there is a lookup function that works on
+assoc lists `Eq a => a -> [(a,b)] -> Maybe b`. Because both `Prelude` and
+`Data.Map` export functions of the same name we need to qualify our use so ghc
+knows which function we mean. That is why we have to type out `Data.Map.lookup`
+in the snippet above
 
-```elixir
-iex> key = "hello"
-"hello"
-iex> %{key => "world"}
-%{"hello" => "world"}
+`Map` use the same data structure internally as `Set`, and luckily `containers`
+exposes very uniform api's. So we get all of our set operations on maps, and
+they are just as performant! Lists also have the set operations but they are
+much less performant due to the different performance characteristics of linked
+lists and binary trees.
+
+## Adding Values to a Map
+
+The blessed function for adding to a map is called `insert`. If a duplicate key
+is added to a map, it will replace the former value:
+
+```haskell
+ghci> empty
+fromList []
+ghci> oneItem = insert "first" 1 empty
+ghci> oneItem
+fromList [("first",1)]
+ghci> insert "first" 2 oneItem
+fromList [("first",2)]
 ```
 
-If a duplicate is added to a map, it will replace the former value:
+A useful function to be aware of is `adjust`. This lets us update a value at a
+specified key, only if it exists, if not the old map is returned.
 
-```elixir
-iex> %{:foo => "bar", :foo => "hello world"}
-%{foo: "hello world"}
+```haskell
+ghci> adjust (+2) "first" oneItem
+fromList [("first",3)]
+ghci> :t adjust
+adjust :: Ord k => (a -> a) -> k -> Map k a -> Map k a
+ghci> adjust (+2) "second" oneItem
+fromList [("first",1)]
 ```
 
-As we can see from the output above, there is a special syntax for maps containing only atom keys:
+The observant reader will notice that `adjust` doesn't actually update the map.
+The second invocation of adjust returns the original `oneItem` map, this makes
+sense when you consider that all data in haskell is immutable!
 
-```elixir
-iex> %{foo: "bar", hello: "world"}
-%{foo: "bar", hello: "world"}
-iex> %{foo: "bar", hello: "world"} == %{:foo => "bar", :hello => "world"}
-true
-```
+## When to use Maps
 
-In addition, there is a special syntax for accessing atom keys:
+Maps are really great for in memory persistence of state that will need to be
+retrieved by a key of some arbitrary type. This is is because maps have great
+lookup asymptotics (`O(log n)`) due to the ordering on the key values. The
+example that immediately springs to mind is session storage on the server, in a
+web application. The session state can be indexed by an id that is stored in
+the cookie.
 
-```elixir
-iex> map = %{foo: "bar", hello: "world"}
-%{foo: "bar", hello: "world"}
-iex> map.hello
-"world"
-```
+## Hashmaps
 
-Another interesting property of maps is that they provide their own syntax for updates (note: this creates a new map):
+There are some cases where we do not have an ordering on our type, but still
+want to use it as a key to index a map. In this case we probably want to reach
+for a hashmap. A hashmap simply hashes the key, et voilà, we have an ordering!
+This does require that the key type is hashable though.
 
-```elixir
-iex> map = %{foo: "bar", hello: "world"}
-%{foo: "bar", hello: "world"}
-iex> %{map | foo: "baz"}
-%{foo: "baz", hello: "world"}
-```
+The module that exports the `HashMap` data type and functionality is called
+`Data.HashMap.Strict`, it lives in the `unordered-containers` package.
+Unfortunately `unordered-containers` are not included in ghci (as of 9.0.1) so
+you will have to setup a project in order to pull in that dependency.
 
-**Note**: this syntax only works for updating a key that already exists in the map! If the key does not exist, a `KeyError` will be raised.
+## Seqs
 
-To create a new key, instead use [`Map.put/3`](https://hexdocs.pm/elixir/Map.html#put/3)
-
-```elixir
-iex> map = %{hello: "world"}
-%{hello: "world"}
-iex> %{map | foo: "baz"}
-** (KeyError) key :foo not found in: %{hello: "world"}
-    (stdlib) :maps.update(:foo, "baz", %{hello: "world"})
-    (stdlib) erl_eval.erl:259: anonymous fn/2 in :erl_eval.expr/5
-    (stdlib) lists.erl:1263: :lists.foldl/3
-iex> Map.put(map, :foo, "baz")
-%{foo: "baz", hello: "world"}
-```
+## Vectors
