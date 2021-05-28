@@ -495,9 +495,8 @@ ghci> consonants == union (difference alphabet vowels) (singleton 'y')
 True
 ```
 
-There is an important difference between regular arithmetic and "set
-arithmetic", because sets cannot contain duplicates `union` does not always
-behave the same as `+`.
+The arithmetic analogy breaks down in an important way, sets cannot
+contain duplicates so `union` does not always behave the same as `+`.
 
 In regular arithmetic this relationship still holds.
 
@@ -514,7 +513,8 @@ ghci> difference (union alphabet $ singleton 'y') vowels
 fromList "bcdfghjklmnpqrstvwxz"
 ```
 
-This is because `union alphabet $ singleton 'y'` is actually the same set as `alphabet`.
+This is because `union alphabet $ singleton 'y'` is actually the same set as
+`alphabet`; y is already a member of the alphabet set.
 
 ### Intersection
 
