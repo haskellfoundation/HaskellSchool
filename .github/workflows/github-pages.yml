@@ -2,7 +2,7 @@ name: Haskell Book
 on:
   push:
     branches:
-      - main
+      - add-ci
 jobs:
   github-pages:
     runs-on: ubuntu-latest
