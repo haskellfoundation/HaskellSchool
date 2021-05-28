@@ -5,7 +5,7 @@ Please ensure your pull request adheres to the following guidelines:
 
 * New lessons or improvements to existing lessons are welcome.
 * Please check your spelling and grammar.
-* Please adhere to our [style guide](https://github.com/elixirschool/elixirschool/wiki/Lesson-Styleguide)
+* Please adhere to our [style guides](./style)
 
 ## A Note on Lesson Versions
 
@@ -14,7 +14,7 @@ All lessons should include the following front matter:
 ```markdown
 ---
 version: 2.0.0
-title: Ecto
+title: Basics
 ---
 ```
 
@@ -26,7 +26,7 @@ Change the `version` attribute according to the following rules:
 
 Fun fact! The version changes are necessary because we use that to programmatically determine and inform translators of new content that requires translation.
 
-Each language has a generated [Translation Report](https://elixirschool.com/es/report/)
+Each language has a generated [Translation Report](https://school.haskell.org/fr/report/)
 
 ## Adding a New Lesson
 To add a new lesson, create the file under the appropriate directory in `en/lessons` (or `<language_code>/lessons`) if you are not writing your new lesson in English).
@@ -45,7 +45,7 @@ Not sure which language code to use?
 Check [here](https://www.loc.gov/standards/iso639-2/php/English_list.php) for the official list.
 
   ```shell
-  $ cd elixirschool
+  $ cd haskellschool
   $ mkdir -p ja/lessons/{basics,advanced,specifics,libraries}
   $ touch ja/lessons/{basics,advanced,specifics,libraries}/.gitkeep
   ```

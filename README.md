@@ -1,17 +1,13 @@
-# Elixir School
+# Haskell School
 
 > Haskell school was built on the model and using the code of elixir school.
 > You can find elixir school at [ElixirSchool.com](https://elixirschool.com).
-
-> Elixir School is the premier destination for people seeking to learn and master the Elixir programming language.
-
-You can access lessons at [ElixirSchool.com](https://elixirschool.com).
 
 _Feedback and participation are strongly encouraged! Please see [Contributing](CONTRIBUTING.md) for more details on how to get involved._
 
 ### Running locally
 
-[ElixirSchool.com](https://elixirschool.com) is generated using [Jekyll](https://github.com/jekyll/jekyll).
+Haskell School is generated using [Jekyll](https://github.com/jekyll/jekyll).
 To run it locally, you need both Ruby and Bundler installed.
 
 1. Install dependencies:
@@ -30,9 +26,10 @@ To run it locally, you need both Ruby and Bundler installed.
 
 ### Translating a lesson
 
-1. Each of the languages has a folder in root of this repo. To start translating you need to copy a file from the English language to the corresponding folder in your language and start translating it.
+1. Each of the languages has a folder in root of this repo. To start translating you need to copy a file from the English language to the corresponding
+   folder in your language and start translating it.
 
-2. Check the [translation report](https://elixirschool.com/pt/report/) for pages that haven't been translated yet, or for pages which need to have their translations updated in the corresponding language you want to work with.
+2. Check the [translation report](https://school.haskell.org/fr/report/) for pages that haven't been translated yet, or for pages which need to have their translations updated in the corresponding language you want to work with.
 
 3. Translated lessons must include page metadata.
    * `title` should be a translation of the original lesson's `title`.
@@ -47,11 +44,11 @@ To run it locally, you need both Ruby and Bundler installed.
   ---
   ```
 
-4. Submit a PR with the new translated lesson and join [https://elixirschool.com/contributors/](_data/contributors.yml).
+4. Submit a PR with the new translated lesson and join [https://school.haskell.org/contributors/](_data/contributors.yml).
 
 ### Posting an article
 
-In its current iteration Elixir School is powered by Jekyll, a powerful static blog generator. If you're familiar with Jekyll then you're ready to go, if you aren't don't fret we're here to help!
+In its current iteration Haskell School is powered by Jekyll, a powerful static blog generator. If you're familiar with Jekyll then you're ready to go, if you aren't don't fret we're here to help!
 
 1. We need to create the file for our article. Blog posts live in the `_posts/` directory. Our filename will need to confirm to the `YYYY-MM-DD-name-separated-with-hyphens.md` pattern.
 

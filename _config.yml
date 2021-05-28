@@ -1,17 +1,9 @@
 # Setup
-name: ElixirSchool
-url: https://elixirschool.com
+name: Haskell School
+url: https://school.haskell.org
 permalink: /blog/:title/
 default_lang: en
 exclude_from_localization: []
-
-# Author
-author:
-  name: Sean Callan
-  url: seancallan.com
-  email: sean@seancallan.com
-  twitter: doomspork
-  github: doomspork
 
 plugins:
   - jekyll-assets
@@ -28,7 +20,7 @@ kramdown:
   syntax_highlighter: rouge
 
 # Assets
-exclude: ['config.ru', 'CONTRIBUTING.md', 'Gemfile', 'Gemfile.lock', 'GLOSSARY', 'Procfile', 'Rakefile', 'README.md', 'vendor', 'LICENSE']
+exclude: ['config.ru', 'CONTRIBUTING.md', 'Gemfile', 'Gemfile.lock', 'GLOSSARY', 'Rakefile', 'README.md', 'vendor', 'LICENSE']
 assets:
   compress:
     css: sass
@@ -46,13 +38,6 @@ sitemap:
     - '/index.html'
   change_frequency_name: 'change_frequency'
   priority_name: 'priority'
-
-elixir:
-  version: 1.10.1
-
-erlang:
-  OTP: 22.0
-  erts: 10.5.3
 
 jekyll-archives:
   enabled: ['categories', 'tags', 'year']

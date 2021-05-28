@@ -1,8 +1,8 @@
 script_direction: ltr
 menu: Menu
 project:
-  title: Elixir School
-  description: The premier destination for learning and mastering Elixir
+  title: Haskell School
+  description: The premier destination for learning and mastering Haskell
 table_of_contents: Table of Contents
 share: Share This Page
 sections:
