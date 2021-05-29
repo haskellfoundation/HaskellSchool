@@ -9,6 +9,10 @@ Tuples, Lists, Assoc Lists, Sets, Maps/Hashmaps, and Vectors.
 
 ## When Should I Use Which Container?
 
+Here is a quick sentence about when to use each container. This is meant to be
+a quick reference, and will probably make more sense after reading about each
+container in more depth.
+
 - Quickly group several pieces of data? Consider a [Tuple](#tuples)
 - Fast prepend? Consider a [List](#lists)
 - Unique and sorted elements? Consider a [Set](#sets)
@@ -17,22 +21,25 @@ Tuples, Lists, Assoc Lists, Sets, Maps/Hashmaps, and Vectors.
 
 ## Using Container Modules
 
-A very nice feature of the containers ecosystem in Haskell is that all the
-modules expose the same api. This allows us to leverage our intuition and feel
-familiar with a wide set of tools very quickly.
+A very nice feature of the container ecosystem in Haskell is that all the
+modules expose the same (or a very similar) api. This allows us to leverage our
+intuition and feel familiar with a wide set of tools very quickly.
 
 It also means that we are bound to run into namespace collisions. It is common
 practice to import container modules using qualified imports. If you intend on
-following along with your own `ghci` session, you should enter the below code to
-make sure that all the modules are available.
+following along with your own `ghci` session, you should enter the qualified
+imports below to make sure that all the modules are available in scope.
 
 ```haskell
 ghci> import qualified Data.Set as Set
 ghci> import qualified Data.Map as Map
+ghci> import qualified Data.List.NonEmpty as NE
 ghci> :t Map.empty
 Map.empty :: Map k a
 ghci> :t Set.empty
 Set.empty :: Set.Set a
+ghci> :t NE.head
+NE.head :: NE.NonEmpty a -> a
 ```
 
 Just so you are familiar with the error when it comes up, this is what happens
@@ -68,12 +75,12 @@ ghci> empty
 ## Tuples
 
 Tuples are the first container you are introduced to in Haskell. They are
-simple, primitive, and have a terse, flexible, built in syntax. The fields of a
-tuple are referenced them by position in the structure. Although tuples can
-theoretically contain an arbitrary number of items, the reality is that the
-Haskell Report only requires up to 15-tuples and GHC comes with support for
-62-tuples. We will focus on the 2-tuple since Haskell has good built in support
-for them. Here is an example of a tuple with 8 fields.
+simple, primitive, and have a terse built-in syntax. The fields of a tuple are
+referenced by position in the structure. Although tuples can theoretically
+contain an arbitrary number of items, the reality is that the Haskell Report
+only requires up to 15-tuples and GHC comes with support for 62-tuples. We will
+focus on the 2-tuple since Haskell has good built in support for them. Just so
+you can see, here is an example of a tuple with 8 fields.
 
 ```haskell
 ghci> :t ('0', '1', '2', '3', '4', '5', '6', "8-tuple")
@@ -85,12 +92,11 @@ message of the form `term :: Type`
 
 ### When to Use
 
-Tuples are useful for associating data; saying "I required both of these
-things". They have a nice built-in syntax, which makes them easy to use.
-Tuples focus on the _structure_ of data, and not on the _meaning_, so they
-are sometimes discouraged. If the data is going to be used in multiple places
-it is often better to define a record, but if the use is local then a tuple
-can be expedient!
+Tuples are useful for associating data; saying "I require both of these
+things". Tuples focus on the *structure* of data, and not on the *meaning*, so
+they are sometimes discouraged. If the data is going to be used in multiple
+places it is often better to define a record, but if the use case is local
+(within the same function scope, for example) then a tuple can be expedient!
 
 ### Constructing Tuples
 
@@ -103,6 +109,26 @@ ghci> :t myTuple
 myTuple :: (Bool, [Char])
 ```
 
+We can also leave a tuple field blank, and this turns it into a function. This
+technique is called tuple sectioning. This requires the langauge extension
+`TupleSections`.
+
+```haskell
+ghci> :set -XTupleSections
+ghci> :t (True,)
+(True,) :: t -> (Bool, t)
+ghci> :t (,"hello")
+(,"hello") :: t -> (t, String)
+ghci> :t (,)
+(,) :: a -> b -> (a, b)
+ghci> (,) True "hello"
+(True,"hello")
+```
+__Note__: The syntax for enabling a language extension from within ghci has the
+following form: `:set` is the keyword that lets ghci know we are setting an
+option, the `-X` prefix tells ghci we are setting a language extension, and
+this is followed by the language extension name in pascal case.
+
 ### Consuming Tuples
 
 We can consume tuples by breaking them apart. The most common approach is to
@@ -114,6 +140,9 @@ ghci> (\(a, b) -> not a) myTuple
 False
 ghci> (\(a, b) -> b <> " world") myTuple
 "hello world"
+
+ghci> (\(a, b, c) -> a <> " " <> b <> " " <> c) ("my", "name", "is")
+"my name is"
 ```
 
 With a 2-tuple there are the functions `fst` and `snd`, and they are available
@@ -159,6 +188,7 @@ ghci> twoTupleToThreeTuple True (1, 2, 3)
                   with actual type: (a0, b0, c0)
                   ...
 ```
+
 ## Lists
 
 From a usability perspective, Lists solve the problem of extensibility that
@@ -181,7 +211,7 @@ ghci> ["hello", True]
 
 Lists are also a first introduction to an "inductive" or "recursive" type. Here
 is an example that is identical to the Haskell implementation without the
-syntactic sugar (we use backticks to add infix syntax).
+syntactic sugar.
 
 ```haskell
 data List a = Nil | Cons a (List a)
@@ -193,7 +223,9 @@ lists can only contain 1 type, because the `a` is threaded through the entire
 structure. In our definition we can replace `Nil` with the empty list `[]` and
 `Cons` with `:` to get back to the built-in syntax.
 
-In that case our original example breaks down like so:
+Here is a demonstration of the structure of lists using the built-in syntax,
+the `:` constructor syntax, and our hand rolled definition. All three examples
+are equivalent:
 
 ```haskell
 ghci> [1,2,3,4]
@@ -206,29 +238,29 @@ Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))
 
 ### List Performance
 
-Haskell implements lists as linked lists. The cons cells (the operator : is
+Haskell implements lists as linked lists. The cons cells (the operator `:` is
 called cons, short for constructor) act as the links. This dictates which
 operations can be done quickly and which can be slow:
 
 Prepending a value to a list is easy and fast - all we have to do is create a
-new cons cell with the new value and point it to the existing list.
+new cons cell with the element we want to prepend and point it to the existing
+list.
 
 ```haskell
 prepend value list = value : list
 ```
 
 On the other hand, since the list data type (as shown above) can be either
-empty (Nil) or a cons cell that will point to the rest of the list, it does not
-contain information about the length of the list, or a reference to the
-end of the list.
+empty (`[]` or `Nil`) or a cons cell that will point to the rest of the list,
+it does not contain information about the length of the list, or a reference to
+the end of the list.
 
 Because of that, in order to retrieve the length of a list we must walk
-each cons cell and count until we reach the end of the list, and to find the
-value in a specific index we need to traverse the list until we reach it.
+each cons cell and count until we reach the end of the list. To find the
+value at a specific index we need to traverse the list until we reach it.
 
 Similarly, in order to append a list to an existing list, we need to go to the
-end of the existing list, and add a cons cell that points to the list we are
-appending:
+end of the existing list, and add a cons cell that points to the new list:
 
 ```haskell
 append originalList newList =
@@ -237,10 +269,10 @@ append originalList newList =
         x : xs -> x : append xs newList
 ```
 
-This means many list operations run in linear time (`𝛰(n)`), which in some
-cases can be significantly slower than some of the alternative containers.
-This is a great reason to be familiar with the different kinds of containers
-and their tradeoffs.
+This means that many list operations run in linear time (`𝛰(n)`), which in some
+cases can be significantly slower than alternative containers. This is a great
+reason to be familiar with the different kinds of containers and their
+tradeoffs.
 
 ### When to Use
 
@@ -251,7 +283,7 @@ and relatively slow indexed access (𝛰(n) where n is the index) they are
 generally used in situations where you know you are going to have to iterate
 over the entire data set, or you want to preserve the order of elements.
 
-A great example of an abstract data structure for which a linked list is a great
+A great example of an abstract data structure for which a linked list is a good
 concrete implementation are stacks. This is because pushing and popping are
 𝛰(1).
 
@@ -292,8 +324,7 @@ ghci> tail ["Orange", "Banana", "Apple"]
 Unfortunately these functions reveal an ugly part of the language's base
 library; they may raise an exception, even when given an argument with the
 appropriate type. The cause of these exceptions is that they do not cover the
-full domain of possible inputs, so there is room for undefined behaviour. This
-means that they do not cover the full domain of possible inputs.
+full domain of possible inputs, so there is room for undefined behaviour.
 
 ```haskell
 ghci> head []
@@ -312,7 +343,6 @@ ghci> :i Maybe
 data Maybe a = Nothing | Just a 	-- Defined in ‘GHC.Maybe’
 ...
 ```
-
 __Note__: `:i` in ghci will give you some information about the type, the first
 line is the implementation.
 
@@ -337,7 +367,6 @@ Just ["Banana","Apple"]
 ghci> safeTail []
 Nothing
 ```
-
 __Note__: `:{` and `:}` allow you to write multiline definitions in ghci.
 
 Hooray! No more exceptions.
@@ -346,7 +375,6 @@ Another container that is the cousin of the list, and ensures that `head` and
 `tail` are safe is the nonempty list.
 
 ```haskell
-ghci> import qualified Data.List.NonEmpty as NE
 ghci> :i NE.NonEmpty
 type NE.NonEmpty :: * -> *
 data NE.NonEmpty a = a NE.:| [a]
@@ -389,31 +417,32 @@ of two existing data types, the only thing we need is a lookup function, which
 is provided in the `Data.List` module in base.
 
 ```haskell
+ghci> import qualified Data.List as List
 ghci> assoc = [("foo", True), ("bar", False)]
 ghci> :t assoc
 assoc :: [(String, Bool)]
-ghci> :t lookup
-lookup :: Eq a => a -> [(a, b)] -> Maybe b
-ghci> lookup "foo" assoc
+ghci> :t List.lookup
+List.lookup :: Eq a => a -> [(a, b)] -> Maybe b
+ghci> List.lookup "foo" assoc
 Just True
-ghci> lookup "bar" assoc
+ghci> List.lookup "bar" assoc
 Just False
-ghci> lookup "baz" assoc
+ghci> List.lookup "baz" assoc
 Nothing
 ```
 
 We can see the pattern, again, where no result is encoded using the `Maybe`
-type. This allows us to have complete functions with errors at compile time
-rather than runtime.
+type. This is because it is always *possible* that the key are looking up isn't
+present in our assoc list.
 
 It is also interesting to note the `Eq a` constraint on the "key" which allows
 the lookup function to do an equality comparison on them.
 
-While assoc lists are a nice introduction to key value container that builds
+While assoc lists are a nice introduction to key value containers, and they build
 on the previous types we learned about, they are not particularly useful. A list
 simply isn't a very good data structure for lookup, as it provides worst case
 `𝛰(n)` asymptotics. Assoc lists are usually an intermediate data structure
-which Haskell programmers will usually convert into a `Map`. Although this
+which Haskell programmers will convert into a `Map`. Although this
 conversion is itself an `𝛰(n*log n)` operation `Map` provides an `O(log n)`
 lookup, so the conversion cost is amortised very quickly.
 
@@ -610,8 +639,7 @@ dictionary.
 A `Map` requires that its key has an ordering (`Ord k`), in the same way that
 `Set` required an ordering on the value. This is because the internal
 implementation of the `Map` type in Haskell is a size balanced binary tree. This
-is actually the same data structure as is used for `Set`, sets just assign a
-number for the key based on the order of the value.
+is actually the same data structure as is used for `Set`.
 
 The `Map` data type and the functions for interacting with it are exported from
 `Data.Map` which is a module in the `containers` package. Don't worry about
@@ -634,11 +662,6 @@ Or by creating it from a list
 ghci> Map.fromList [(4, '4'), (3, '3'), (2, '2'), (1,'1')]
 fromList [(1,'1'),(2,'2'),(3,'3'),(4,'4')]
 ```
-
-Luckily `containers` exposes very uniform api's. So we get all of our set
-operations on maps, and they are just as performant! Lists also have the set
-operations but they are much slower due to the different performance
-characteristics of linked lists and binary trees.
 
 ## Updating Values to a Map
 
@@ -684,10 +707,10 @@ on the key.
 ## Vectors
 
 Sometimes we want a list like container where we can have performant indexed
-access. In fact arrays are often the primitive sequential data structure in lots
-of popular programming langauges (rhymes with guava equipped). Well Haskell has
-those kinds of data structures too, and the most popular implementation is the
-`Vector` type from the `vector` library.
+access. In fact arrays are often the primitive sequential data structure in
+lots of popular programming langauges. Haskell has this kind of data structures
+too, and the most popular implementation is the `Vector` type from the `vector`
+library.
 
 One of the coolest things about the `Vector` type is that it offers `𝛰(1)`
 indexed access. The `vector` library offers both a safe and unsafe index
@@ -734,7 +757,7 @@ ghci> upperCase
 ghci> nums = V.slice 48 10 asciiChars
 ghci> nums
 "0123456789"
- ghci> V.slice 97 92 asciiChars
+ ghci> V.slice 97 92 asciiChars -- Error case
 "*** Exception: ./Data/Vector/Generic.hs:408 (slice): invalid slice (97,92,128)
 CallStack (from HasCallStack):
   error, called at ./Data/Vector/Internal/Check.hs:87:5 in vector-0.12.3.0-8cc976946fcdbc43a65d82e2ca0ef40a7bb90b17e6cc65c288a8b694f5ac3127:Data.Vector.Internal.Check
