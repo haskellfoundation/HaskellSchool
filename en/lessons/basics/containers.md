@@ -1,6 +1,6 @@
 ---
 version: 1.3.1
-title: Collections
+title: Containers
 ---
 
 Tuples, Lists, Assoc Lists, Sets, Maps/Hashmaps, and Vectors.
@@ -9,10 +9,9 @@ Tuples, Lists, Assoc Lists, Sets, Maps/Hashmaps, and Vectors.
 
 ## Tuples
 
-Tuples are the first collection you are introduced to in Haskell. They are
-simple, primitive, and have a terse, flexible, built in syntax. Tuples are
-sometimes referred to as anonymous records, but instead of referencing fields
-by name you reference them by position in the structure. Although tuples can
+Tuples are the first container you are introduced to in Haskell. They are
+simple, primitive, and have a terse, flexible, built in syntax. The fields of a
+tuple are referenced them by position in the structure. Although tuples can
 theoretically contain an arbitrary number of items, the reality is that the
 Haskell Report only requires up to 15-tuples and GHC comes with support for
 62-tuples. We will focus on the 2-tuple since Haskell has good built in support
@@ -30,32 +29,19 @@ message of the form `term :: Type`
 
 Tuples are not very flexible because they have a fixed length. This also means
 we have a lot of information about the structure of our data and therefore
-access is very perfomant `O(1)`. From a type safety perspective tuples are
+access is very perfomant `𝛰(1)`. From a type safety perspective tuples are
 useful for associating data; saying "I required both of these things". For
 example if we wanted to represent a money transfer it wouldn't make sense to
 have just the amount or just the destination, we would want to group them `(Int,
 AccountId)`.
 
-There is an interesting parallel between functions that require n arguments and
-functions that require n-tuples. While "curried" functions are arguably more
-useful due to partial application, these two modalities are equivalent.
-
-```haskell
-ghci> :t (&&)
-(&&) :: Bool -> Bool -> Bool
-ghci> :t uncurry (&&)
-uncurry (&&) :: (Bool, Bool) -> Bool
-ghci> :t curry (uncurry (&&))
-curry (uncurry (&&)) :: Bool -> Bool -> Bool
-```
-
 ### Constructing Tuples
 
 We can construct tuples using parnetheses with the elements separated by a
-comma `(a,b)`.
+comma `(a, b)`.
 
 ```haskell
-ghci> myTuple = (True,"hello")
+ghci> myTuple = (True, "hello")
 ghci> :t myTuple
 myTuple :: (Bool, [Char])
 ```
@@ -63,10 +49,10 @@ myTuple :: (Bool, [Char])
 ### Consuming Tuples
 
 We can consume tuples by breaking them apart. With a 2-tuple the options are
-pretty simple. They have the predictable names `fst` and `snd`, and are
-available in the standard library, so no need to import anything! 2-tuples are the only
-arity of tuple that comes with this kind of built in support, so if you need anything larger
-be prepared to write your own accessor functions.
+pretty simple. There are the functions `fst` and `snd`, and they are available
+in the standard library, so no need to import anything! 2-tuples are the only
+arity of tuple that comes with this kind of built in support, so if you need
+anything larger be prepared to write your own accessor functions.
 
 ```haskell
 ghci> fst myTuple
@@ -88,9 +74,9 @@ snd :: (a, b) -> b
 We can also pattern match on tuples to extract their contents.
 
 ```haskell
-ghci> (\(a,b) -> not a) myTuple
+ghci> (\(a, b) -> not a) myTuple
 False
-ghci> (\(a,b) -> b ++ " world") myTuple
+ghci> (\(a, b) -> b <> " world") myTuple
 "hello world"
 ```
 
@@ -104,9 +90,9 @@ defined ad hoc.
 Here is an example of increasing the tuple's length.
 
 ```haskell
-ghci> twoTupleToThreeTuple c (a,b) = (a,b,c)
+ghci> twoTupleToThreeTuple c (a, b) = (a, b, c)
 ghci> twoTupleToThreeTuple () myTuple
-(1,"world",())
+(1, "world", ())
 ```
 
 Trying to call our function on a tuple of the incorrect length results in a type
@@ -114,7 +100,7 @@ error telling us just as much; the function expected a 2-tuple but we gave it a
 3-tuple.
 
 ```haskell
-ghci> twoTupleToThreeTuple True (1,2,3)
+ghci> twoTupleToThreeTuple True (1, 2, 3)
 
 <interactive>:19:27: error:
     • Couldn't match expected type: (a, b)
@@ -125,7 +111,7 @@ ghci> twoTupleToThreeTuple True (1,2,3)
 
 From a usability perspective, Lists solve the problem of extensibility that
 tuples face, but they can only contain one type (in other words they are
-homogenous). Lists also have a special built in syntax.
+homogeneous). Lists also have a special built in syntax.
 
 ```haskell
 ghci> [1,2,3,4]
@@ -170,16 +156,16 @@ Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))
 
 Haskell implements lists as linked lists. Where the cons cells (this operator is
 called a cons `:`) act as the links.  This means that accessing the list length
-is an operation that will run in linear time (`O(n)`).  For this reason, it is
+is an operation that will run in linear time (`𝛰(n)`).  For this reason, it is
 typically faster to prepend than to append:
 
 ```Haskell
 ghci> list = ["Orange", "Banana", "Apple"]
 ["Orange", "Banana", "Apple"]
--- Prepending (fast) (O(1))
+-- Prepending (fast) (𝛰(1))
 ghci> "Grape" : list
 ["Grape", "Orange", "Banana", "Apple"]
--- Appending (slow) (O(n))
+-- Appending (slow) (𝛰(n))
 ghci> list ++ ["Cherry"]
 ["Orange", "Banana", "Apple", "Cherry"]
 ```
@@ -189,16 +175,16 @@ ghci> list ++ ["Cherry"]
 Linked lists are an extremely common data structure in functional programming,
 this means you are going to see them everywhere in Haskell. They are generally
 the first container a Haskell programmer reaches for.  Because of slow append
-and relatively slow indexed access (O(n) where n is the index) they are
+and relatively slow indexed access (𝛰(n) where n is the index) they are
 generally used in situations where you know you are going to have to iterate
 over the entire data set, or you want to preserve the order of elements.
 
 A great example of an abstract data structure for which a linked list is a great
 concrete implementation are stacks. This is because pushing and popping are
-O(1).
+𝛰(1).
 
 A bad use case would be for a queue, where either enqueue or dequeue would be
-O(n) depending on which side of the linked list you decide to insert into.
+𝛰(n) depending on which side of the linked list you decide to insert into.
 
 A common real world example of where lists are used is database queries. A
 database query could return no results `[]`, or some `[entity..]`, and there is
@@ -215,7 +201,7 @@ ghci> [1, 2] ++ [3, 4, 1]
 [1, 2, 3, 4, 1]
 ```
 
-A side note about another operator that you might come across `<>`. This
+As an side you might come across another concatentation operator `<>`. This
 operator is sometimes referred to as `mappend`, it represents generic
 concatenation. In other words any type that supports `<>` can be "appended". In
 the case of lists `<>` is exactly `++` under the hood.
@@ -237,8 +223,10 @@ ghci> tail ["Orange", "Banana", "Apple"]
 ```
 
 Unfortunately these functions reveal an ugly part of the language's base
-library, some of the functions are partial. This means that they do not cover
-the full domain of possible inputs.
+library; they may raise an exception, even when given an argument with the
+appropriate type. The cause of these exceptions is that they do not cover the
+full domain of possible inputs, so there is room for undefined behaviour. This
+means that they do not cover the full domain of possible inputs.
 
 ```haskell
 ghci> head []
@@ -287,7 +275,7 @@ __Note__: `:{` and `:}` allow you to write multiline definitions in ghci.
 
 Hooray! No more exceptions.
 
-Another collection that is the cousin of the list, and ensures that `head` and
+Another container that is the cousin of the list, and ensures that `head` and
 `tail` are safe is the nonempty list.
 
 ```haskell
@@ -300,8 +288,8 @@ data NonEmpty a = a :| [a]
 
 From its definition we can see that `NonEmpty` requires the first element to be
 present. Despite its similarity to the sum constructor `|`, the `:|` constructor
-of `NonEmpty` is just a plane old binary constructor; just a fancy looking
-tuple!
+of `NonEmpty` is just a plane old binary constructor! Its the same as saying
+"you must provide the head and the rest of the list".
 
 This handles the partiality problem the exact opposite way as the
 `Maybe` solution. Instead of forcing the caller of the function to guard against
@@ -322,8 +310,8 @@ ghci> Data.List.NonEmpty.head []
 ```
 
 Notice that this time the error is not a runtime exception but a type error, the
-compiler is politely telling us that we tried to use a (potentially empty) list
-rather than the required `NonEmpty` type.
+compiler is telling us that we tried to use a (potentially empty) list rather
+than the required `NonEmpty` type.
 
 ## Assoc lists
 
@@ -355,22 +343,21 @@ time rather than runtime.
 It is also interesting to note the `Eq a` constraint on the "key" which allows
 the lookup function to do an equality comparison on them.
 
-While assoc lists are a nice introduction to key value collections that build
+While assoc lists are a nice introduction to key value container that builds
 on the previous types we learned about, they are not particularly useful. A list
 simply isn't a very good data structure for lookup, as it provides worst case
-`O(n)` asymptotics. Assoc lists are usually an intermediate data structure
+`𝛰(n)` asymptotics. Assoc lists are usually an intermediate data structure
 which Haskell programmers will usually convert into a `Map`. Although this
-conversion is itself an `O(n*log n)` operation `Map` provides an `O(log n)`
+conversion is itself an `𝛰(n*log n)` operation `Map` provides an `O(log n)`
 lookup, so the conversion cost is ammortized very quickly.
 
 ## Sets
 
 Sets are a very interesting container, the core concept of a set is membership.
-Although you can lookup elements by index, this is generally not advised since
-the interface makes no promises about what this index will be. Instead it is
-common to build up sets, and then test to see if an element exists in that set.
+It is common to build up sets, and then test to see if an element exists in that
+set.
 
-A set can be constructed purely by inserting elements into the empty set
+A set can be constructed exclusively by inserting elements into the empty set
 
 ```haskell
 ghci> import Data.Set
@@ -404,8 +391,7 @@ ghci> :t member
 member :: Ord a => a -> Set a -> Bool
 ```
 
-Sets have a very useful property, they cannot contain duplicates. This means
-that `insert` is idempotent.
+Sets have a very useful property, they cannot contain duplicates.
 
 ```haskell
 ghci> insert1 = insert 1
@@ -416,10 +402,6 @@ fromList [1]
 ghci> insert1 (insert1 (insert1 empty))
 fromList [1]
 ```
-__Note__: Idempotence is a property the some functions have. The property
-characterized by a function the yields the same result no matter how many times
-you call it (with the same argument). For idempotent function f `f a == f (f
-a)`.
 
 Alright, let's see an almost-practical use case for sets.
 
@@ -438,27 +420,25 @@ ghci> isEven 8
 True
 ```
 
-You might say "hmmm a `1000000` limit for even numbers seems incorrect",
-and you would be right! This highlights a property of sets in haskell, they
-are finite due to the strictness in the underlying implementation. This is in
-contrast to lists, which are lazy and therefore potentially infinite.
+You might say "hmmm a `1000000` limit for even numbers seems incorrect", and you
+would be right! This highlights a property of sets in haskell, they are finite
+due to the strictness in the underlying data structure. This contrasts lists,
+which are lazy and therefore potentially infinite.
 
 ### Difference
 
 Set difference is a good way to break apart a set based on the membership of its
-elements in another set. Say I want to get a set of all consonants, and I have a
-set representing the alphabet as well as a set representing all the vowels. I
-could simply take the difference of the vowel set from the alphabet set.
+elements in another set. It will return a set with all the elements of the first
+argument less the elements of its second argument.
 
 ```haskell
-ghci> alphabet = fromList ['a'..'z']
-ghci> alphabet
-fromList "abcdefghijklmnopqrstuvwxyz"
-ghci> vowels = fromList ['a', 'e', 'i', 'o', 'u', 'y']
-ghci> vowels
-fromList "aeiouy"
-ghci> difference alphabet vowels
-fromList "bcdfghjklmnpqrstvwxz"
+ghci> set1 = fromList ["a", "b", "c", "1", "2", "3"]
+ghci> letters = fromList ["a", "b", "c"]
+ghci> nums = fromList ["1", "2", "3"]
+ghci> difference set1 letters
+fromList ["1","2","3"]
+ghci> difference set1 nums
+fromList ["a","b","c"]
 ```
 
 This brings up a critical point of order! The `difference` function subtracts
@@ -466,93 +446,71 @@ its second argument from the first, so mixing up your sets can lead to undesired
 behaviour.
 
 ```haskell
-ghci> difference vowels alphabet
-fromList ""
-```
-
-You also may have noticed that `y`, which can be both a consonant and a vowel,
-was subtracted from the consonant set. Let's fix that.
-
-```haskell
-ghci> consonants = difference alphabet $ difference vowels (singleton 'y')
-ghci> consonants
-fromList "bcdfghjklmnpqrstvwxyz"
+ghci> difference nums set1
+fromList []
 ```
 
 ### Union
 
 Union's are useful for when we want to build up a new set from the combination
-of two other sets. We can actually rephrase the "set arithmetic" we used to
-construct the set of consonants in the previous example to use a `union`. If the
-`difference` function is analogous to subtraction, then the `union` function is
-like addition.
-
-Here is the rough algebraic sketch for how we are going to re-formulate the
-previous example.
-
-```
-a - (b - c) = (a - b) + c
-4 - (2 - 1) = (4 - 2) + 1
-3 = 3
-```
+of two other sets. Union will create a new set with the members of each set and,
+of course, no duplicates.
 
 ```haskell
-ghci> union (difference alphabet vowels) (singleton 'y')
-fromList "bcdfghjklmnpqrstvwxyz"
-ghci> consonants == union (difference alphabet vowels) (singleton 'y')
-True
+ghci> nums
+fromList ["1","2","3"]
+ghci> letters
+fromList ["a","b","c"]
+ghci> union nums letters
+fromList ["1","2","3","a","b","c"]
+ghci> set1
+fromList ["1","2","3","a","b","c"]
+ghci> union nums set1
+fromList ["1","2","3","a","b","c"]
 ```
-
-However, this arithmetic analogy breaks down in an important way, sets cannot
-contain duplicates so `union` does not always behave the same as `+`.
-
-In regular arithmetic this relationship still holds.
-
-```
-a - (b - c) = (a + c) - b
-4 - (2 - 1) = (4 + 1) - 2
-3 = 3
-```
-
-But it doesn't work for our example.
-
-```haskell
-ghci> difference (union alphabet $ singleton 'y') vowels
-fromList "bcdfghjklmnpqrstvwxz"
-```
-
-This is because `union alphabet $ singleton 'y'` is actually the same set as
-`alphabet`; y is already a member of the alphabet set, so it is de-duplicated
-when we try and union it in.
 
 ### Intersection
 
 Intersection allows us to find elements that sets have in common.
 
 ```haskell
-ghci> intersection vowels consonants
-fromList "y"
+ghci> intersection nums letters
+fromList []
+ghci> intersection nums set1
+fromList ["1","2","3"]
+ghci> intersection letters set1
+fromList ["a","b","c"]
+ghci> intersection (fromList [1, 2]) (fromList [2, 3])
+fromList [2]
 ```
 
 ### Subsets
 
 Subsets allow us to detect if all the elements of a set are contained within
-another set.
+another set. The order of the arguments matters here, we are asking if the first
+argument is a subset of the second argument.
 
 ```haskell
-ghci> isSubsetOf vowels alphabet
+ghci> isSubsetOf letters set1
 True
-ghci> isSubsetOf consonants alphabet
+ghci> isSubsetOf nums set1
 True
-ghci> isSubsetOf alphabet vowels
+ghci> isSubsetOf nums letters
 False
-ghci> isSubsetOf consonants vowels
+ghci> isSubsetOf set1 nums
 False
 ```
 
-This function, like `difference`, has an order to the arguments. We are asking
-if the first argument is a subset of the second. From the example above you can
-see that `vowels` are a subset of the `alphabet` but not the other way around.
+Every set is a subset of itself.
+
+```haskell
+ghci> isSubsetOf nums nums
+True
+ghci> isSubsetOf set1 set1
+True
+ghci> isSubsetOf letters letters
+True
+```
 
 ### Cartesian Products
 
@@ -654,7 +612,7 @@ sense when you consider that all data in haskell is immutable!
 
 Maps are really great for in memory persistence of state that will need to be
 retrieved by a key of some arbitrary type. This is is because maps have great
-lookup asymptotics (`O(log n)`) due to the ordering on the key values. The
+lookup asymptotics (`𝛰(log n)`) due to the ordering on the key values. The
 example that immediately springs to mind is session storage on the server in a
 web application. The session state can be indexed by an id that is stored in
 the cookie, and the session state can be retrieved from an in memory `Map` on
@@ -669,11 +627,9 @@ for a hashmap. A hashmap simply hashes the key, et voilà, we have an ordering!
 This does require that the key type is hashable though.
 
 The module that exports the `HashMap` data type and functionality is called
-`Data.HashMap.Strict`, it lives in the `unordered-containers` package.
-Unfortunately `unordered-containers` are not included in ghci (as of 9.0.1) so
-you will have to setup a project in order to pull in that dependency. Fret not
-though, the api is identical to `Map` aside from a `Hashable k` constraint
-instead of an `Ord k` on the key.
+`Data.HashMap.Strict`, it lives in the `unordered-containers` package. The api
+is identical to `Map` aside from a `Hashable k` constraint instead of an `Ord k`
+on the key.
 
 ## Vectors
 
@@ -683,17 +639,15 @@ of popular programming langauges (rhymes with guava equipped). Well Haskell has
 those kinds of data structures too, and the most popular implementation is the
 `Vector` type from the `vector` library.
 
-One of the coolest things about the `Vector` type is that it offers `O(1)`
+One of the coolest things about the `Vector` type is that it offers `𝛰(1)`
 indexed access. The `vector` library offers both a safe and unsafe index
 accessor operator.
 
 Here is an example where we want to create a container that allows us to
 retrieve ascii chars by their character code.
 
-__Note__: Because this library is not a core library it doesn't ship with ghci,
-therefore you will not be able to run the code below. However, if you have
-`cabal-install` available you can run `cabal new-repl --build-depends "vector"`
-and then the snippet below should work.
+__Note__: You can fetch the `vector` library using `cabal repl --build-depends "vector"`
+or `stack exec --package vector -- ghci`
 
 ```haskell
 ghci> import Data.Vector
@@ -712,8 +666,8 @@ ghci> asciiChars !? 127
 Just '\DEL'
 ```
 
-Vectors also offer efficient slicing `O(1)`, so they are really good for
-creating sub-collections. The slice function takes the index to start at, the
+Vectors also offer efficient slicing `𝛰(1)`, so they are really good for
+creating sub-vectors. The slice function takes the index to start at, the
 length of the slice, and the vector to slice, and returns a new vector. Slicing
 is unsafe, if the starting index plus the length of the slice exceeds the vector
 you will get a runtime error.
