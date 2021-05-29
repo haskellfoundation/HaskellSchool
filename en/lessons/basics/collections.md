@@ -9,15 +9,14 @@ Tuples, Lists, Assoc Lists, Sets, Maps/Hashmaps, and Vectors.
 
 ## Tuples
 
-Tuples are the first kind of collection you are introduced to in Haskell. This
-is because they are simple, primitive, and have a terse, flexible, built in
-syntax. Tuples are sometimes referred to as anonymous records, but instead of
-referencing fields by name you reference them by position in the structure.
-Tuples can contain an arbitrary number of items, well this is not entirely
-true, the Haskell Report only requires up to 15-tuples and GHC comes with
-support for 62-tuples, but usually that is enough.We will focus on the 2-tuple
-since Haskell has good built in support for them. However, if you are
-interested this is what an 8-tuple looks like
+Tuples are the first collection you are introduced to in Haskell. They are
+simple, primitive, and have a terse, flexible, built in syntax. Tuples are
+sometimes referred to as anonymous records, but instead of referencing fields
+by name you reference them by position in the structure. Although tuples can
+theoretically contain an arbitrary number of items, the reality is that the
+Haskell Report only requires up to 15-tuples and GHC comes with support for
+62-tuples. We will focus on the 2-tuple since Haskell has good built in support
+for them. However, if you are interested this is what an 8-tuple looks like
 
 ```haskell
 ghci> :t ('0', '1', '2', '3', '4', '5', '6', "8-tuple")
@@ -52,7 +51,8 @@ curry (uncurry (&&)) :: Bool -> Bool -> Bool
 
 ### Constructing Tuples
 
-We can construct tuples using a familiar syntax `(a,b)`.
+We can construct tuples using parnetheses with the elements separated by a
+comma `(a,b)`.
 
 ```haskell
 ghci> myTuple = (True,"hello")
@@ -64,7 +64,9 @@ myTuple :: (Bool, [Char])
 
 We can consume tuples by breaking them apart. With a 2-tuple the options are
 pretty simple. They have the predictable names `fst` and `snd`, and are
-available in the standard library, so no need to import anything!
+available in the standard library, so no need to import anything! 2-tuples are the only
+arity of tuple that comes with this kind of built in support, so if you need anything larger
+be prepared to write your own accessor functions.
 
 ```haskell
 ghci> fst myTuple
@@ -73,8 +75,8 @@ ghci> snd myTuple
 "hello"
 ```
 
-The types of these functions simple, yet reveal exactly how they behave. `fst`
-picks the first element and `snd` picks the second element.
+The types of these functions are simple, yet reveal exactly how they behave.
+`fst` picks the first element and `snd` picks the second element.
 
 ```haskell
 ghci> :t fst
@@ -359,14 +361,14 @@ simply isn't a very good data structure for lookup, as it provides worst case
 `O(n)` asymptotics. Assoc lists are usually an intermediate data structure
 which Haskell programmers will usually convert into a `Map`. Although this
 conversion is itself an `O(n*log n)` operation `Map` provides an `O(log n)`
-lookup.
+lookup, so the conversion cost is ammortized very quickly.
 
 ## Sets
 
 Sets are a very interesting container, the core concept of a set is membership.
 Although you can lookup elements by index, this is generally not advised since
-the interface makes no promises about what this index will be. Instead if is
-common to build up sets and test to see if an element exists in that set.
+the interface makes no promises about what this index will be. Instead it is
+common to build up sets, and then test to see if an element exists in that set.
 
 A set can be constructed purely by inserting elements into the empty set
 
@@ -374,6 +376,8 @@ A set can be constructed purely by inserting elements into the empty set
 ghci> import Data.Set
 ghci> :t empty
 empty :: Set a
+ghci> empty
+fromList []
 ghci> insert 1 (insert 2 (insert 3 empty))
 fromList [1,2,3]
 ```
@@ -385,19 +389,23 @@ ghci> fromList [4,3,2,1]
 fromList [1,2,3,4]
 ```
 
-You might notice that the elements are sorted after turning them into a `Set`. This is
-becuase internally the `Set` data type depends on its contents being orderable. We can
-see this from the constraints on the `insert` and `fromList` functions.
+You might notice that the elements are sorted after turning them into a `Set`.
+Internally the `Set` data type depends on its contents being orderable. The
+concrete implementaiton of sets in haskell are binary trees, which depend on an
+ordering. We can see the ordering requirement from the constraints on the
+`insert` and `fromList` (and other) functions.
 
 ```haskell
 ghci> :t insert
 insert :: Ord a => a -> Set a -> Set a
 ghci> :t fromList
 fromList :: Ord a => [a] -> Set a
+ghci> :t member
+member :: Ord a => a -> Set a -> Bool
 ```
 
-Sets have a very useful property, they cannot contain duplicates. This means that `insert`
-is idempotent.
+Sets have a very useful property, they cannot contain duplicates. This means
+that `insert` is idempotent.
 
 ```haskell
 ghci> insert1 = insert 1
@@ -408,18 +416,12 @@ fromList [1]
 ghci> insert1 (insert1 (insert1 empty))
 fromList [1]
 ```
-__Note__: Idempotence is the property that some functions have, where calling the function
-multiple times has the same result. For idempotent function f `f a == f (f a)`.
+__Note__: Idempotence is a property the some functions have. The property
+characterized by a function the yields the same result no matter how many times
+you call it (with the same argument). For idempotent function f `f a == f (f
+a)`.
 
-This also means that calling `toList` after `fromList` is an inefficient way to
-de-duplicate a list!
-
-```haskell
-ghci> toList $ fromList [1,1]
-[1]
-```
-
-Alright, let's see a use case for sets.
+Alright, let's see an almost-practical use case for sets.
 
 ```haskell
 ghci> :t member
@@ -437,13 +439,16 @@ True
 ```
 
 You might say "hmmm a `1000000` limit for even numbers seems incorrect",
-and you would be correct. This highlights a property of sets in haskell, they
-are finite due to the strictness in the underlying implementation.
+and you would be right! This highlights a property of sets in haskell, they
+are finite due to the strictness in the underlying implementation. This is in
+contrast to lists, which are lazy and therefore potentially infinite.
 
 ### Difference
 
-Set difference is a good way to break apart a set based on a subset. Say I want
-to get a set of all consonants, and I have a set of all characters.
+Set difference is a good way to break apart a set based on the membership of its
+elements in another set. Say I want to get a set of all consonants, and I have a
+set representing the alphabet as well as a set representing all the vowels. I
+could simply take the difference of the vowel set from the alphabet set.
 
 ```haskell
 ghci> alphabet = fromList ['a'..'z']
@@ -456,8 +461,9 @@ ghci> difference alphabet vowels
 fromList "bcdfghjklmnpqrstvwxz"
 ```
 
-This brings up a critical point of order! The `difference` function subtracts its second argument
-from the first, so mixing up your sets can lead to undesired behaviour.
+This brings up a critical point of order! The `difference` function subtracts
+its second argument from the first, so mixing up your sets can lead to undesired
+behaviour.
 
 ```haskell
 ghci> difference vowels alphabet
@@ -465,7 +471,7 @@ fromList ""
 ```
 
 You also may have noticed that `y`, which can be both a consonant and a vowel,
-was subtracted. Let's fix that.
+was subtracted from the consonant set. Let's fix that.
 
 ```haskell
 ghci> consonants = difference alphabet $ difference vowels (singleton 'y')
@@ -475,12 +481,14 @@ fromList "bcdfghjklmnpqrstvwxyz"
 
 ### Union
 
-Union's are useful for when we want to build up a new set from two smaller
-sets. We can actually rephrase the "set arithmetic" we used to construct the set
-of consonants in the previous example to use a `union`. If the `difference` function
-is kind of like subtraction, then the `union` function is kind of like addition.
+Union's are useful for when we want to build up a new set from the combination
+of two other sets. We can actually rephrase the "set arithmetic" we used to
+construct the set of consonants in the previous example to use a `union`. If the
+`difference` function is analogous to subtraction, then the `union` function is
+like addition.
 
-Here is the algebra in case you need convincing.
+Here is the rough algebraic sketch for how we are going to re-formulate the
+previous example.
 
 ```
 a - (b - c) = (a - b) + c
@@ -495,7 +503,7 @@ ghci> consonants == union (difference alphabet vowels) (singleton 'y')
 True
 ```
 
-The arithmetic analogy breaks down in an important way, sets cannot
+However, this arithmetic analogy breaks down in an important way, sets cannot
 contain duplicates so `union` does not always behave the same as `+`.
 
 In regular arithmetic this relationship still holds.
@@ -514,7 +522,8 @@ fromList "bcdfghjklmnpqrstvwxz"
 ```
 
 This is because `union alphabet $ singleton 'y'` is actually the same set as
-`alphabet`; y is already a member of the alphabet set.
+`alphabet`; y is already a member of the alphabet set, so it is de-duplicated
+when we try and union it in.
 
 ### Intersection
 
@@ -527,7 +536,8 @@ fromList "y"
 
 ### Subsets
 
-Subsets allow us to detect if all the elements of a set are contained within another set.
+Subsets allow us to detect if all the elements of a set are contained within
+another set.
 
 ```haskell
 ghci> isSubsetOf vowels alphabet
@@ -546,7 +556,7 @@ see that `vowels` are a subset of the `alphabet` but not the other way around.
 
 ### Cartesian Products
 
-Cartesion products, sometimes referred to as cross multiplication, allows us to
+Cartesion products, sometimes referred to as cross multiplication, allow us to
 get all the possible combinations of the elements of two sets.
 
 A classic example of a cartesian product is a chess board, which is the cross
@@ -568,18 +578,19 @@ fromList
   ]
 ```
 
-You're can thank me when you ace the n-queens question on your next technical
-interview.
+You're can thank me later when you ace the n-queens question on your next
+technical interview.
 
 ## Maps
 
 In Haskell, maps are the "go-to" key-value store, sometimes referred to as a
 dictionary.
 
-While you can construct a `Map` with any type as the key and value, almost all
-functions that operate on maps require that the key has an ordering (`Ord k`).
-This is because the internal implementation of the `Map` type in haskell is a
-size balanced binary tree.
+A `Map` requires that its key has an ordering (`Ord k`), in the same way that
+`Set` required an ordering on the value. This is because the internal
+implementation of the `Map` type in haskell is a size balanced binary tree. This
+is actually the same data structure as is used for `Set`, sets just assign a
+number for the key based on the order of the value.
 
 The `Map` data type and the functions for interacting with it are exported from
 `Data.Map` which is a module in the `containers` package. Don't worry about
@@ -588,27 +599,25 @@ dependencies though, containers is a core library and ships with ghci.
 The simplest way to construct a `Map` is to call `fromList` on an assoc list.
 
 ```haskell
-ghci> letterToChar = [("a", 'a'), ("b", 'b'), ("c", 'c')]
-ghci> fromList letterToChar
+ghci> strToChar = [("a", 'a'), ("b", 'b'), ("c", 'c')]
+ghci> fromList strToChar
 fromList [("a",'a'),("b",'b'),("c",'c')]
-ghci> letterToCharMap = fromList letterToChar
-ghci> :t letterToCharMap
-letterToCharMap :: Map String Char
-ghci> Data.Map.lookup "a" letterToCharMap
+ghci> strToCharMap = fromList strToChar
+ghci> :t strToCharMap
+strToCharMap :: Map String Char
+ghci> Data.Map.lookup "a" strToCharMap
 Just 'a'
 ```
-
 __Note__: You might remember that there is a lookup function that works on
 assoc lists `Eq a => a -> [(a,b)] -> Maybe b`. Because both `Prelude` and
 `Data.Map` export functions of the same name we need to qualify our use so ghc
 knows which function we mean. That is why we have to type out `Data.Map.lookup`
-in the snippet above
+in the snippet above.
 
-`Map` use the same data structure internally as `Set`, and luckily `containers`
-exposes very uniform api's. So we get all of our set operations on maps, and
-they are just as performant! Lists also have the set operations but they are
-much less performant due to the different performance characteristics of linked
-lists and binary trees.
+Luckily `containers` exposes very uniform api's. So we get all of our set
+operations on maps, and they are just as performant! Lists also have the set
+operations but they are much slower due to the different performance
+characteristics of linked lists and binary trees.
 
 ## Adding Values to a Map
 
@@ -646,9 +655,11 @@ sense when you consider that all data in haskell is immutable!
 Maps are really great for in memory persistence of state that will need to be
 retrieved by a key of some arbitrary type. This is is because maps have great
 lookup asymptotics (`O(log n)`) due to the ordering on the key values. The
-example that immediately springs to mind is session storage on the server, in a
+example that immediately springs to mind is session storage on the server in a
 web application. The session state can be indexed by an id that is stored in
-the cookie.
+the cookie, and the session state can be retrieved from an in memory `Map` on
+every request. This solution doesn't scale infinitely, but you would be
+surprised how well it works!
 
 ## Hashmaps
 
@@ -660,31 +671,33 @@ This does require that the key type is hashable though.
 The module that exports the `HashMap` data type and functionality is called
 `Data.HashMap.Strict`, it lives in the `unordered-containers` package.
 Unfortunately `unordered-containers` are not included in ghci (as of 9.0.1) so
-you will have to setup a project in order to pull in that dependency.
+you will have to setup a project in order to pull in that dependency. Fret not
+though, the api is identical to `Map` aside from a `Hashable k` constraint
+instead of an `Ord k` on the key.
 
 ## Vectors
 
-Sometimes we want list like structures where we can have performant indexed
-access. In fact arrays are often the primitive sequential data structure in
-lots of popular programming langauges (rhymes with guava equipped). Well Haskell
-has those kinds of data structures too, and the most popular implementation is the
+Sometimes we want a list like container where we can have performant indexed
+access. In fact arrays are often the primitive sequential data structure in lots
+of popular programming langauges (rhymes with guava equipped). Well Haskell has
+those kinds of data structures too, and the most popular implementation is the
 `Vector` type from the `vector` library.
 
-One of the coolest things about the `Vector` type is that it offers `O(1)` indexed
-access and ships with a safe and unsafe accessor operator.
+One of the coolest things about the `Vector` type is that it offers `O(1)`
+indexed access. The `vector` library offers both a safe and unsafe index
+accessor operator.
 
-Here is an example where we want to create a container that allows us to access
-ascii chars by their character code.
+Here is an example where we want to create a container that allows us to
+retrieve ascii chars by their character code.
 
-__Note__: Because this library is not a core library it doesn't ship with ghci, therefore
-you will not be able to run the code below. However, if you have `cabal-install` available
-you can run `cabal new-repl --build-depends "vector"`
+__Note__: Because this library is not a core library it doesn't ship with ghci,
+therefore you will not be able to run the code below. However, if you have
+`cabal-install` available you can run `cabal new-repl --build-depends "vector"`
+and then the snippet below should work.
 
 ```haskell
 ghci> import Data.Vector
 ghci> asciiChars = fromList ['\NUL'..'\DEL']
-ghci> asciiChars ! 64
-'@'
 ghci> asciiChars ! 48
 '0'
 ghci> asciiChars ! 97
@@ -701,8 +714,8 @@ Just '\DEL'
 
 Vectors also offer efficient slicing `O(1)`, so they are really good for
 creating sub-collections. The slice function takes the index to start at, the
-length of the slice, and the vector, and returns a new vector. Slicing is
-unsafe, if the starting index plus the length of the slice exceeds the vector
+length of the slice, and the vector to slice, and returns a new vector. Slicing
+is unsafe, if the starting index plus the length of the slice exceeds the vector
 you will get a runtime error.
 
 ```haskell
@@ -717,6 +730,10 @@ ghci> upperCase
 ghci> nums = slice 48 10 asciiChars
 ghci> nums
 "0123456789"
+ ghci> slice 97 92 asciiChars
+"*** Exception: ./Data/Vector/Generic.hs:408 (slice): invalid slice (97,92,128)
+CallStack (from HasCallStack):
+  error, called at ./Data/Vector/Internal/Check.hs:87:5 in vector-0.12.3.0-8cc976946fcdbc43a65d82e2ca0ef40a7bb90b17e6cc65c288a8b694f5ac3127:Data.Vector.Internal.Check
 ```
 
 ## Overloaded Lists
