@@ -3,7 +3,7 @@ version: 1.3.1
 title: Collections
 ---
 
-Tuples, Lists, Assoc Lists, Sets, Maps/Hashmaps, Seqs, and Vectors.
+Tuples, Lists, Assoc Lists, Sets, Maps/Hashmaps, and Vectors.
 
 {% include toc.html %}
 
@@ -662,6 +662,98 @@ The module that exports the `HashMap` data type and functionality is called
 Unfortunately `unordered-containers` are not included in ghci (as of 9.0.1) so
 you will have to setup a project in order to pull in that dependency.
 
-## Seqs
-
 ## Vectors
+
+Sometimes we want list like structures where we can have performant indexed
+access. In fact arrays are often the primitive sequential data structure in
+lots of popular programming langauges (rhymes with guava equipped). Well Haskell
+has those kinds of data structures too, and the most popular implementation is the
+`Vector` type from the `vector` library.
+
+One of the coolest things about the `Vector` type is that it offers `O(1)` indexed
+access and ships with a safe and unsafe accessor operator.
+
+Here is an example where we want to create a container that allows us to access
+ascii chars by their character code.
+
+__Note__: Because this library is not a core library it doesn't ship with ghci, therefore
+you will not be able to run the code below. However, if you have `cabal-install` available
+you can run `cabal new-repl --build-depends "vector"`
+
+```haskell
+ghci> import Data.Vector
+ghci> asciiChars = fromList ['\NUL'..'\DEL']
+ghci> asciiChars ! 64
+'@'
+ghci> asciiChars ! 48
+'0'
+ghci> asciiChars ! 97
+'a'
+ghci> asciiChars ! 65
+'A'
+ghci> asciiChars !? 65
+Just 'A'
+ghci> asciiChars !? 128
+Nothing
+ghci> asciiChars !? 127
+Just '\DEL'
+```
+
+Vectors also offer efficient slicing `O(1)`, so they are really good for
+creating sub-collections. The slice function takes the index to start at, the
+length of the slice, and the vector, and returns a new vector. Slicing is
+unsafe, if the starting index plus the length of the slice exceeds the vector
+you will get a runtime error.
+
+```haskell
+ghci> :t slice
+slice :: Int -> Int -> Vector a -> Vector a
+ghci> lowerCase = slice 97 26 asciiChars
+ghci> lowerCase
+"abcdefghijklmnopqrstuvwxyz"
+ghci> upperCase = slice 65 26 asciiChars
+ghci> upperCase
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+ghci> nums = slice 48 10 asciiChars
+ghci> nums
+"0123456789"
+```
+
+## Overloaded Lists
+
+You may have noticed that we frequently use the `fromList` function to
+construct our containers. There is a language extension that allows us to
+simply use the list syntax to construct these containers. The drawback of
+overloading the list syntax is that we can get confusing type errors if we are
+not explicit about our types.
+
+```haskell
+ghci> import Data.Map
+ghci> import Data.Set
+ghci> import Data.Vector
+ghci> :set -XOverloadedLists -- This is the language extension
+ghci> [1,2,3] :: Set Int
+fromList [1,2,3]
+ghci> [1,2,3] :: Vector Int
+[1,2,3]
+ghci> [('a', 1),('b', 2),('c', 3)] :: Map Char Int
+fromList [('a',1),('b',2),('c',3)]
+ghci> [1,2,3]
+```
+
+However, if we aren't explicit about the type...
+
+```haskell
+ghci> ["1", "2", "3"]
+
+<interactive>:11:1: error:
+    • Illegal equational constraint GHC.Exts.Item l ~ [Char]
+      (Use GADTs or TypeFamilies to permit this)
+    • When checking the inferred type
+        it :: forall {l}.
+              (GHC.Exts.IsList l, GHC.Exts.Item l ~ [Char]) =>
+              l
+```
+
+This error is a bit of a doozey, which is why this language extension is
+typically not enabled by default. It is still good to be aware of it!
