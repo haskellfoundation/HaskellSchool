@@ -60,7 +60,7 @@ Haskell has a bounded integer type called `Int`:
 ghci> 255 :: Int
 255
 ```
-Note: specify the type to use with `::`.
+__Note__: `::` specifies the type being used.
 
 Haskell also supports arbitrary precision integers with `Integer`:
 
@@ -68,7 +68,7 @@ Haskell also supports arbitrary precision integers with `Integer`:
 ghci> 123456789101112131415
 123456789101112131415
 ```
-Note: `ghci` automatically defaults to `Integer` here.
+__Note__: `ghci` automatically defaults to `Integer` here.
 
 ### Floats
 
