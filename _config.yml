@@ -1,6 +1,7 @@
 # Setup
 name: Haskell School
-url: https://school.haskell.org
+url: https://haskell.foundation
+baseurl: /HaskellSchool
 permalink: /blog/:title/
 default_lang: en
 exclude_from_localization: []
