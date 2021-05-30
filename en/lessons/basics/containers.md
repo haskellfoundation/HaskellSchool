@@ -236,44 +236,6 @@ ghci> Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))
 Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))
 ```
 
-### List Performance
-
-Haskell implements lists as linked lists. The cons cells (the operator `:` is
-called cons, short for constructor) act as the links. This dictates which
-operations can be done quickly and which can be slow:
-
-Prepending a value to a list is easy and fast - all we have to do is create a
-new cons cell with the element we want to prepend and point it to the existing
-list.
-
-```haskell
-prepend value list = value : list
-```
-
-On the other hand, since the list data type (as shown above) can be either
-empty (`[]` or `Nil`) or a cons cell that will point to the rest of the list,
-it does not contain information about the length of the list, or a reference to
-the end of the list.
-
-Because of that, in order to retrieve the length of a list we must walk
-each cons cell and count until we reach the end of the list. To find the
-value at a specific index we need to traverse the list until we reach it.
-
-Similarly, in order to append a list to an existing list, we need to go to the
-end of the existing list, and add a cons cell that points to the new list:
-
-```haskell
-append originalList newList =
-    case originalList of
-        [] -> newList
-        x : xs -> x : append xs newList
-```
-
-This means that many list operations run in linear time (`𝛰(n)`), which in some
-cases can be significantly slower than alternative containers. This is a great
-reason to be familiar with the different kinds of containers and their
-tradeoffs.
-
 ### When to Use
 
 Linked lists are an extremely common data structure in functional programming,
@@ -406,6 +368,44 @@ ghci> NE.head []
 Notice that this time the error is not a runtime exception but a type error, the
 compiler is telling us that we tried to use a (potentially empty) list rather
 than the required `NonEmpty` type.
+
+### List Performance
+
+Haskell implements lists as linked lists. The cons cells (the operator `:` is
+called cons, short for constructor) act as the links. This dictates which
+operations can be done quickly and which can be slow:
+
+Prepending a value to a list is easy and fast - all we have to do is create a
+new cons cell with the element we want to prepend and point it to the existing
+list.
+
+```haskell
+prepend value list = value : list
+```
+
+On the other hand, since the list data type (as shown above) can be either
+empty (`[]` or `Nil`) or a cons cell that will point to the rest of the list,
+it does not contain information about the length of the list, or a reference to
+the end of the list.
+
+Because of that, in order to retrieve the length of a list we must walk
+each cons cell and count until we reach the end of the list. To find the
+value at a specific index we need to traverse the list until we reach it.
+
+Similarly, in order to append a list to an existing list, we need to go to the
+end of the existing list, and add a cons cell that points to the new list:
+
+```haskell
+append originalList newList =
+    case originalList of
+        [] -> newList
+        x : xs -> x : append xs newList
+```
+
+This means that many list operations run in linear time (`𝛰(n)`), which in some
+cases can be significantly slower than alternative containers. This is a great
+reason to be familiar with the different kinds of containers and their
+tradeoffs.
 
 ## Assoc lists
 
