@@ -87,8 +87,8 @@ ghci> :t ('0', '1', '2', '3', '4', '5', '6', "8-tuple")
 ('0', '1', '2', '3', '4', '5', '6', "8-tuple")
   :: (Char, Char, Char, Char, Char, Char, Char, [Char])
 ```
-__Note__: `:t` in the ghci repl shows the type of the value, it will print out a
-message of the form `term :: Type`
+__Note__: `:t` in the ghci repl shows the type of the value. It will print out a
+message of the form `term :: Type`.
 
 ### When to Use
 
@@ -671,7 +671,7 @@ specified key, only if it exists, if not the old map is returned.
 ```haskell
 ghci> Map.adjust (+2) "first" oneItem
 fromList [("first",3)]
-ghci> :t Mapadjust
+ghci> :t Map.adjust
 Map.adjust :: Ord k => (a -> a) -> k -> Map.Map k a -> Map.Map k a
 ghci> Map.adjust (+2) "second" oneItem
 fromList [("first",1)]
