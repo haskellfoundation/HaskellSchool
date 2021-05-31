@@ -198,13 +198,6 @@ homogeneous). Lists also have a special built in syntax.
 ```haskell
 ghci> [1,2,3,4]
 [1,2,3,4]
-ghci> ["hello", True]
-
-<interactive>:22:11: error:
-    • Couldn't match type ‘Bool’ with ‘[Char]’
-      Expected: String
-        Actual: Bool
-    ...
 ```
 
 ### Inductive Types
@@ -402,10 +395,14 @@ append originalList newList =
         x : xs -> x : append xs newList
 ```
 
-This means that many list operations run in linear time (`𝛰(n)`), which in some
-cases can be significantly slower than alternative containers. This is a great
-reason to be familiar with the different kinds of containers and their
-tradeoffs.
+The append function defined here is really the same as the `++` operator, as you
+might have deduced we need to be careful when using list append. Particularly
+`++` inside of loops has quadratic performance!
+
+By virtue of the linked list data structure, many list operations run in linear
+time (`𝛰(n)`). In many cases the same operation is significantly slower for
+lists than for other containers, this is a great reason to be familiar with each
+and their tradeoffs!
 
 ## Assoc lists
 
@@ -517,7 +514,7 @@ would be right! This highlights a property of sets in haskell, they are finite
 due to the strictness in the underlying data structure. This contrasts lists,
 which are lazy and therefore potentially infinite.
 
-### Difference
+### Set Operations
 
 Set difference is a good way to break apart a set based on the membership of its
 elements in another set. It will return a set with all the elements of the first
@@ -533,20 +530,8 @@ ghci> Set.difference set1 nums
 fromList ["a","b","c"]
 ```
 
-This brings up a critical point of order! The `difference` function subtracts
-its second argument from the first, so mixing up your sets can lead to undesired
-behaviour.
-
-```haskell
-ghci> Set.difference nums set1
-fromList []
-```
-
-### Union
-
 Union's are useful for when we want to build up a new set from the combination
-of two other sets. Union will create a new set with the members of each set and,
-of course, no duplicates.
+of two other sets.
 
 ```haskell
 ghci> nums
@@ -561,8 +546,6 @@ ghci> Set.union nums set1
 fromList ["1","2","3","a","b","c"]
 ```
 
-### Intersection
-
 Intersection allows us to find elements that sets have in common.
 
 ```haskell
@@ -576,11 +559,8 @@ ghci> Set.intersection (fromList [1, 2]) (fromList [2, 3])
 fromList [2]
 ```
 
-### Subsets
-
 Subsets allow us to detect if all the elements of a set are contained within
-another set. The order of the arguments matters here, we are asking if the first
-argument is a subset of the second argument.
+another set.
 
 ```haskell
 ghci> Set.isSubsetOf letters set1
@@ -603,33 +583,6 @@ True
 ghci> Set.isSubsetOf letters letters
 True
 ```
-
-### Cartesian Products
-
-Cartesian products, sometimes referred to as cross multiplication, allow us to
-get all the possible combinations of the elements of two sets.
-
-A classic example of a Cartesian product is a chess board, which is the cross
-multiplication of the letters a - h and the numbers 1 - 8.
-
-```haskell
-ghci> ranks = Set.fromList [1..8]
-ghci> files = Set.fromList ['a'..'h']
-ghci> Set.cartesianProduct files ranks
-fromList
-  [('a',1),('a',2),('a',3),('a',4),('a',5),('a',6),('a',7),('a',8)
-  ,('b',1),('b',2),('b',3),('b',4),('b',5),('b',6),('b',7),('b',8)
-  ,('c',1),('c',2),('c',3),('c',4),('c',5),('c',6),('c',7),('c',8)
-  ,('d',1),('d',2),('d',3),('d',4),('d',5),('d',6),('d',7),('d',8)
-  ,('e',1),('e',2),('e',3),('e',4),('e',5),('e',6),('e',7),('e',8)
-  ,('f',1),('f',2),('f',3),('f',4),('f',5),('f',6),('f',7),('f',8)
-  ,('g',1),('g',2),('g',3),('g',4),('g',5),('g',6),('g',7),('g',8)
-  ,('h',1),('h',2),('h',3),('h',4),('h',5),('h',6),('h',7),('h',8)
-  ]
-```
-
-You're can thank me later when you ace the n-queens question on your next
-technical interview.
 
 ## Maps
 
