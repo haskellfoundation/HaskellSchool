@@ -326,14 +326,12 @@ __Note__: `:{` and `:}` allow you to write multiline definitions in ghci.
 
 Hooray! No more exceptions.
 
-Another container that is the cousin of the list, and ensures that `head` and
-`tail` are safe is the nonempty list.
+Another way to ensures that `head` and `tail` are safe is the non-empty list:
 
 ```haskell
-ghci> :i NE.NonEmpty
-type NE.NonEmpty :: * -> *
-data NE.NonEmpty a = a NE.:| [a]
-  	-- Defined in ‘GHC.Base’
+ghci> import Data.List.NonEmpty
+ghci> :i NonEmpty
+data NonEmpty a = a .:| [a]
 ```
 
 From its definition we can see that `NonEmpty` requires the first element to be
@@ -346,15 +344,15 @@ the ill-defined case when handling the result of the function, it forces them to
 construct a valid input up front (when calling the function).
 
 ```haskell
+ghci> import qualified Data.List.NonEmpty as NE
 ghci> :t NE.head
-NE.head :: NE.NonEmpty a -> a
-ghci> NE.head (1 NE.:| [])
+NE.head :: NonEmpty a -> a
+ghci> head (1 :| [])
 1
 ghci> NE.head []
-
 <interactive>:11:9: error:
-    • Couldn't match expected type: NE.NonEmpty a
-                  with actual type: [a0]
+    • Couldn't match expected type: NonEmpty a
+                  with actual type: [a]
     ...
 ```
 
@@ -435,13 +433,13 @@ present in our assoc list.
 It is also interesting to note the `Eq a` constraint on the "key" which allows
 the lookup function to do an equality comparison on them.
 
-While assoc lists are a nice introduction to key value containers, and they build
-on the previous types we learned about, they are not particularly useful. A list
-simply isn't a very good data structure for lookup, as it provides worst case
-`𝛰(n)` asymptotics. Assoc lists are usually an intermediate data structure
-which Haskell programmers will convert into a `Map`. Although this
-conversion is itself an `𝛰(n*log n)` operation `Map` provides an `O(log n)`
-lookup, so the conversion cost is amortised very quickly.
+While assoc lists are a nice introduction to key value containers, and they
+build on the previous types we learned about, they are not particularly useful.
+A list simply isn't a very good data structure for lookup, as it provides worst
+case `𝛰(n)` asymptotics. Assoc lists are usually an intermediate data structure
+which Haskell programmers will convert into a `Map`. Although this conversion
+is itself an `𝛰(n*log n)` operation `Map` provides an `𝛰(log n)` lookup, so the
+conversion cost is amortised very quickly.
 
 ## Sets
 
@@ -452,8 +450,10 @@ set.
 A set can be constructed exclusively by inserting elements into the empty set
 
 ```haskell
+ghci> import Data.Set (Set)
+ghci> import qualified Data.Set as Set
 ghci> :t Set.empty
-Set.empty :: Set.Set a
+Set.empty :: Set a
 ghci> Set.empty
 fromList []
 ghci> Set.insert 1 (Set.insert 2 (Set.insert 3 Set.empty))
@@ -475,11 +475,11 @@ ordering. We can see the ordering requirement from the constraints on the
 
 ```haskell
 ghci> :t Set.insert
-Set.insert :: Ord a => a -> Set.Set a -> Set.Set a
+Set.insert :: Ord a => a -> Set a -> Set a
 ghci> :t Set.fromList
-Set.fromList :: Ord a => [a] -> Set.Set a
+Set.fromList :: Ord a => [a] -> Set a
 ghci> :t Set.member
-Set.member :: Ord a => a -> Set.Set a -> Bool
+Set.member :: Ord a => a -> Set a -> Bool
 ```
 
 Sets have a very useful property, they cannot contain duplicates.
@@ -601,8 +601,10 @@ dependencies though, containers is a core library and ships with ghci.
 Like sets, a map can be constructed by inserting key value pairs into an empty map
 
 ```haskell
+ghci> import Data.Map (Map)
+ghci> import qualifide Data.Map as Map
 ghci> :t Map.empty
-Map.empty :: Map.Map k a
+Map.empty :: Map k a
 ghci> Map.empty
 fromList []
 ghci> Map.insert "a" 'a' (Map.insert "b" 'b' (Map.insert "c" 'c' Map.empty))
@@ -625,7 +627,7 @@ specified key, only if it exists, if not the old map is returned.
 ghci> Map.adjust (+2) "first" oneItem
 fromList [("first",3)]
 ghci> :t Map.adjust
-Map.adjust :: Ord k => (a -> a) -> k -> Map.Map k a -> Map.Map k a
+Map.adjust :: Ord k => (a -> a) -> k -> Map k a -> Map k a
 ghci> Map.adjust (+2) "second" oneItem
 fromList [("first",1)]
 ```
@@ -676,6 +678,7 @@ __Note__: You can fetch the `vector` library using `cabal repl --build-depends "
 or `stack exec --package vector -- ghci`
 
 ```haskell
+ghci> import Data.Vector
 ghci> import qualified Data.Vector as V
 ghci> asciiChars = V.fromList ['\NUL'..'\DEL']
 ghci> asciiChars ! 48
@@ -700,7 +703,7 @@ you will get a runtime error.
 
 ```haskell
 ghci> :t V.slice
-V.slice :: Int -> Int -> V.Vector a -> V.Vector a
+V.slice :: Int -> Int -> Vector a -> Vector a
 ghci> lowerCase = V.slice 97 26 asciiChars
 ghci> lowerCase
 "abcdefghijklmnopqrstuvwxyz"
@@ -708,9 +711,13 @@ ghci> upperCase = V.slice 65 26 asciiChars
 ghci> upperCase
 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 ghci> nums = V.slice 48 10 asciiChars
+ghci> V.length nums
+128
 ghci> nums
 "0123456789"
- ghci> V.slice 97 92 asciiChars -- Error case
+-- Error case, the asciiChars vectors has length 128, and our slice supposes a
+-- length of 97 + 92 (189)
+ghci> V.slice 97 92 asciiChars
 "*** Exception: ./Data/Vector/Generic.hs:408 (slice): invalid slice (97,92,128)
 CallStack (from HasCallStack):
   error, called at ./Data/Vector/Internal/Check.hs:87:5 in vector-0.12.3.0-8cc976946fcdbc43a65d82e2ca0ef40a7bb90b17e6cc65c288a8b694f5ac3127:Data.Vector.Internal.Check
@@ -726,11 +733,11 @@ not explicit about our types.
 
 ```haskell
 ghci> :set -XOverloadedLists -- This is the language extension
-ghci> [1,2,3] :: Set.Set Int
+ghci> [1,2,3] :: Set Int
 fromList [1,2,3]
-ghci> [1,2,3] :: V.Vector Int
+ghci> [1,2,3] :: Vector Int
 [1,2,3]
-ghci> [('a', 1),('b', 2),('c', 3)] :: Map.Map Char Int
+ghci> [('a', 1),('b', 2),('c', 3)] :: Map Char Int
 fromList [('a',1),('b',2),('c',3)]
 ```
 
