@@ -31,9 +31,9 @@ following along with your own `ghci` session, you should enter the qualified
 imports below to make sure that all the modules are available in scope.
 
 ```haskell
-ghci> import qualified Data.Set as Set
-ghci> import qualified Data.Map as Map
-ghci> import qualified Data.List.NonEmpty as NE
+ghci> import Data.Set as Set
+ghci> import Data.Map as Map
+ghci> import Data.List.NonEmpty as NE
 ghci> :t Map.empty
 Map.empty :: Map k a
 ghci> :t Set.empty
@@ -344,7 +344,7 @@ the ill-defined case when handling the result of the function, it forces them to
 construct a valid input up front (when calling the function).
 
 ```haskell
-ghci> import qualified Data.List.NonEmpty as NE
+ghci> import Data.List.NonEmpty as NE
 ghci> :t NE.head
 NE.head :: NonEmpty a -> a
 ghci> head (1 :| [])
@@ -412,7 +412,7 @@ of two existing data types, the only thing we need is a lookup function, which
 is provided in the `Data.List` module in base.
 
 ```haskell
-ghci> import qualified Data.List as List
+ghci> import Data.List as List
 ghci> assoc = [("foo", True), ("bar", False)]
 ghci> :t assoc
 assoc :: [(String, Bool)]
@@ -450,8 +450,7 @@ set.
 A set can be constructed exclusively by inserting elements into the empty set
 
 ```haskell
-ghci> import Data.Set (Set)
-ghci> import qualified Data.Set as Set
+ghci> import Data.Set as Set
 ghci> :t Set.empty
 Set.empty :: Set a
 ghci> Set.empty
@@ -678,8 +677,7 @@ __Note__: You can fetch the `vector` library using `cabal repl --build-depends "
 or `stack exec --package vector -- ghci`
 
 ```haskell
-ghci> import Data.Vector
-ghci> import qualified Data.Vector as V
+ghci> import Data.Vector as V
 ghci> asciiChars = V.fromList ['\NUL'..'\DEL']
 ghci> asciiChars ! 48
 '0'
