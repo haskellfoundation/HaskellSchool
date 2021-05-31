@@ -30,3 +30,17 @@
 #     - Configuration Demystified
 #     - Ecto query composition
 #     - 'Umbrellas: only when it rains?'
+- github: JonathanLorimer
+  name: Jonathan Lorimer
+  intro:
+    Jonathan Lorimer was a philosophy student who couldn't turn it into a
+    career so he sold out and learned how to do web development. Along the way
+    he discovered haskell, and found it to be an edifying endeavour in the same
+    ways that philosophy was.
+  twitter: jonathanlorime1
+  homepage: https://jonathanlorimer.dev
+  contributions:
+    - lesson
+ languages:
+   - en
+  lessons: ['collections']
