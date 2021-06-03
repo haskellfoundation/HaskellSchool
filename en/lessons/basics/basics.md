@@ -16,20 +16,20 @@ The recommended installation instructions for each OS can be found at
 
 You can check the version of the Haskell compiler installed by running
 `ghc --version`:
-
-    % ghc --version
-    The Glorious Glasgow Haskell Compilation System, version {{ site.ghc.version }}
-
+```shell
+$ ghc --version
+The Glorious Glasgow Haskell Compilation System, version {{ site.ghc.version }}
+```
 ### Trying Interactive Mode
 
 Your installation should come with `ghci`, an interactive shell that allows you
 to try out code in real time.
 
 Follow this tutorial by running `ghci`:
-
-    GHCi, version {{ site.ghc.version }}: https://www.haskell.org/ghc/  :? for help
-    ghci>
-
+```console?lang=haskell&prompt=ghci>,ghci|
+GHCi, version {{ site.ghc.version }}: https://www.haskell.org/ghc/  :? for help
+ghci>
+```
 To use the `Text` type in this tutorial, type in:
 
 ```console?lang=haskell&prompt=ghci>,ghci|
