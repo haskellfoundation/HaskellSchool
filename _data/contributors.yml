@@ -41,6 +41,6 @@
   homepage: https://jonathanlorimer.dev
   contributions:
     - lesson
- languages:
+  languages:
    - en
   lessons: ['collections']
