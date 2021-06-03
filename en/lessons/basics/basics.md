@@ -30,16 +30,17 @@ Follow this tutorial by running `ghci`:
     GHCi, version {{ site.ghc.version }}: https://www.haskell.org/ghc/  :? for help
     ghci>
 
-To use `Text` in Haskell, type in:
+To use the `Text` type in this tutorial, type in:
 
-```haskell
+```console?lang=haskell&prompt=ghci>,ghci|
 ghci> :set -XOverloadedStrings
 ghci> import qualified Data.Text as T
+ghci> import qualified Data.Text.IO as T
 ```
 
 You can try out Haskell by typing in a few simple expressions:
 
-```haskell
+```console?lang=haskell&prompt=ghci>,ghci|
 ghci> 2 + 3
 5
 ghci> 2 + 3 == 5
@@ -48,7 +49,7 @@ ghci> T.length "The quick brown fox jumps over the lazy dog"
 43
 ```
 
-Perhaps you're able to figure out what some of these expressions mean.
+Perhaps you are able to figure out what some of these expressions mean.
 
 ## Basic Data Types
 
@@ -56,15 +57,15 @@ Perhaps you're able to figure out what some of these expressions mean.
 
 Haskell has a bounded integer type called `Int`:
 
-```haskell
-ghci> 255 :: Int
-255
+```console?lang=haskell&prompt=ghci>,ghci|
+ghci> 196883 :: Int
+196883
 ```
 __Note__: `::` specifies the type being used.
 
 Haskell also supports arbitrary precision integers with `Integer`:
 
-```haskell
+```console?lang=haskell&prompt=ghci>,ghci|
 ghci> 123456789101112131415
 123456789101112131415
 ```
@@ -76,7 +77,7 @@ Haskell supports `Double`, a double-precision floating-point number.
 At least one digit must come before the decimal point and Haskell supports
 scientific `e` notation.
 
-```haskell
+```console?lang=haskell&prompt=ghci>,ghci|
 ghci> 3.14
 3.14
 ghci> .14
@@ -92,7 +93,7 @@ ghci> 2.7e10
 
 Booleans in Haskell are represented with `True` and `False`:
 
-```haskell
+```console?lang=haskell&prompt=ghci>,ghci|
 ghci> True
 True
 ghci> False
@@ -101,24 +102,26 @@ False
 
 ### Text
 
-Haskell supports unicode text. Strings are wrapped in double quotes:
+Haskell supports Unicode text. Text is wrapped in double quotes,
+and can be printed with `T.putStrLn`:
 
-```haskell
-ghci> "Hello" :: T.Text
-"Hello"
-ghci> "jalapeño" :: T.Text
-"jalape\241o"
+```console?lang=haskell&prompt=ghci>,ghci|
+ghci> T.putStrLn "Hello"
+Hello
+ghci> T.putStrLn "jalapeño"
+jalapeño
 ```
 
 Special characters can be represented with numeric escapes or escape codes:
 
-```haskell
-ghci> "'hi\"" :: T.Text
-"'hi\""
-ghci> "\n" :: T.Text
-"\n"
-ghci> "\42" :: T.Text
-"*"
+```console?lang=haskell&prompt=ghci>,ghci|
+ghci> T.putStrLn "'hi\""
+'hi"
+ghci> T.putStrLn "dis\njointed"
+dis
+jointed
+ghci> T.putStrLn "\42"
+*
 ```
 
 You'll learn more about data types in [collections](../collections/) and
@@ -128,10 +131,11 @@ You'll learn more about data types in [collections](../collections/) and
 
 ### Arithmetic
 
-Haskell supports the basic operators `+`, `-`, `*`, and `/`.
-Note that `/` never returns an integer.
+Haskell supports the basic operators: `+`, `-`, `*`, `/`, `**` and `^`.
+Note that `/` and `**` never operate on integers,
+whereas `^` only accepts positive integer powers.
 
-```haskell
+```console?lang=haskell&prompt=ghci>,ghci|
 ghci> 2 + 2
 4
 ghci> 2 - 1
@@ -140,11 +144,17 @@ ghci> 2 * 5
 10
 ghci> 10 / 5
 2.0
+ghci> 2 ** (-0.5)
+0.7071067811865476
+ghci> 1.5 ^ 2
+2.25
+ghci> 5 ^ 2
+25
 ```
 
 For integer division and integer modulus, use `div` and `mod`:
 
-```haskell
+```console?lang=haskell&prompt=ghci>,ghci|
 ghci> -8 `div` 3
 -2
 ghci> 243 `mod` 5
@@ -156,9 +166,9 @@ ghci> 2 * (5 `div` 2) + (5 `mod` 2)
 ### Boolean
 
 Haskell provides the boolean operators `||`, `&&`, and `not` that operate on
-`Bool`:
+`Bool`. These operators do not evaluate the second term if possible.
 
-```haskell
+```console?lang=haskell&prompt=ghci>,ghci|
 ghci> False || False
 False
 ghci> True || False
@@ -178,10 +188,10 @@ True
 ### Comparison
 
 Haskell comes with comparison operators for ordering: `<=`, `>=`, `<`, and `>`.
-The operator `==` compares equality whilst `/=` compares inequality.
+Conversely, the operator `==` compares equality whilst `/=` compares inequality.
 Values compared must be of the same type.
 
-```haskell
+```console?lang=haskell&prompt=ghci>,ghci|
 ghci> 1 > 2
 False
 ghci> 2 < 2
@@ -199,7 +209,7 @@ True
 
 String concatenation uses the `<>` operator:
 
-```haskell
-ghci> "abra" <> "cadabra" :: T.Text
-"abracadabra"
+```console?lang=haskell&prompt=ghci>,ghci|
+ghci> T.putStrLn ("abra" <> "cadabra")
+abracadabra
 ```
