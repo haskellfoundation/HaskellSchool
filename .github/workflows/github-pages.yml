@@ -1,4 +1,4 @@
-name: Haskell Book
+name: Haskell School Deployment
 on:
   push:
     branches:
