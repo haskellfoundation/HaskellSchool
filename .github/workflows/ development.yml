@@ -2,10 +2,10 @@ name: Haskell School Deployment
 on:
   pull_request:
     branches:
-      - develop-ci-test
+      - development
   push:
     branches:
-      - develop-ci-test
+      - development
 jobs:
   Build-With-Jekyll:
     runs-on: ubuntu-latest
