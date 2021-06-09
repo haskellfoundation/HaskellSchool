@@ -37,6 +37,8 @@ ghci> :set -XOverloadedStrings
 ghci> import qualified Data.Text as T
 ghci> import qualified Data.Text.IO as T
 ```
+__Note__: qualified imports are used here to prevent name conflicts.
+Imports also allow you to choose the module namespace.
 
 You can try out Haskell by typing in a few simple expressions:
 
@@ -103,7 +105,8 @@ False
 ### Text
 
 Haskell supports Unicode text. Text is wrapped in double quotes,
-and can be printed with `T.putStrLn`:
+and can be printed with the function `T.putStrLn` that you imported
+from `Data.Text.IO`:
 
 ```console?lang=haskell&prompt=ghci>,ghci|
 ghci> T.putStrLn "Hello"
@@ -188,8 +191,8 @@ True
 ### Comparison
 
 Haskell comes with comparison operators for ordering: `<=`, `>=`, `<`, and `>`.
-Conversely, the operator `==` compares equality whilst `/=` compares inequality.
-Values compared must be of the same type.
+Moreover, the operator `==` checks for equality whilst `/=` checks for inequality.
+Values compared using these operators must have the same type.
 
 ```console?lang=haskell&prompt=ghci>,ghci|
 ghci> 1 > 2
