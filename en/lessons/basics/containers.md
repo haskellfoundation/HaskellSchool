@@ -279,7 +279,7 @@ ghci> tail ["Orange", "Banana", "Apple"]
 Unfortunately these functions reveal an ugly part of the language's base
 library; they may raise an exception, even when given an argument with the
 appropriate type. The cause of these exceptions is that they do not cover the
-full domain of possible inputs, so there is room for undefined behaviour.
+full domain of possible inputs.
 
 ```haskell
 ghci> head []
