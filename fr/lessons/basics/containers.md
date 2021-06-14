@@ -204,14 +204,11 @@ ghci> [1, 2] ++ [3, 4, 1]
 [1, 2, 3, 4, 1]
 ```
 
-### Head / Tail
+### _Head_ / _Tail_
 
-When using lists, it is common to work with a list's head and tail. The head is
-the list's first element, while the tail is a list containing the remaining
-elements.
+Lorsque l'on utilise des _Lists_, il est commun de travailler avec le premier élément (_head_) et le reste des éléments (_tail_).
 
-Haskell provides two helpful functions, `head` and `tail`, for working with
-these parts:
+Haskell fournit deux fonctions simples pour accéder à ces éléments de la liste : `head` et `tail` :
 
 ```haskell
 ghci> head ["Orange", "Banana", "Apple"]
@@ -220,10 +217,7 @@ ghci> tail ["Orange", "Banana", "Apple"]
 ["Banana","Apple"]
 ```
 
-Unfortunately these functions reveal an ugly part of the language's base
-library; they may raise an exception, even when given an argument with the
-appropriate type. The cause of these exceptions is that they do not cover the
-full domain of possible inputs.
+Malheureusement ces fonctions ont un désavantage dans la bibliothèque de base; elles peuvent lever des exceptions même lorsqu'on leur fournit un élément dont le type est correct. La cause de ces exceptions est que ces deux fonctions ne gèrent pas l'ensemble des cas possibles (_partial functions_) : exemple une liste vide.
 
 ```haskell
 ghci> head []
@@ -232,20 +226,16 @@ ghci> tail []
 *** Exception: Prelude.tail: empty list
 ```
 
-We can use a common idiom in Haskell for covering partial functions in a safe
-way, the `Maybe` type. This allows us to say that unhandled inputs return a
-`Nothing`. Now the caller of this maybe-returning-function must handle the
-`Nothing` case, but in return they are not faced with a nasty runtime exception.
+Pour couvrir ces possibilités de manière sure, il est commun en Haskell d'utiliser le type `Maybe`. Il permet de notifier au programme que les cas qui ne sont pas couverts doivent retourner `Nothing`. L'appelant de la fonction retournant un type _maybe_ est alors forcé de gérer les cas où `Nothing` sera retourné mais se prémunit des exceptions lors de l'éxecution du programme (_runtime exceptions_).
 
 ```haskell
 ghci> :i Maybe
 data Maybe a = Nothing | Just a 	-- Defined in ‘GHC.Maybe’
 ...
 ```
-__Note__: `:i` in ghci will give you some information about the type, the first
-line is the implementation.
+__Note__: `:i` dans l'interpréteur ghci donne des informations à propos du type, la première ligne est son implémentation.
 
-Now we can define a total head and tail function using pattern matching!
+On peut à présent définir des fonctions _head_ et _tail_ sures, prenant en compte tous les cas possibles sans exceptions, (_total functions_) en utilisant le _pattern matching_!
 
 ```haskell
 ghci> :{
@@ -266,11 +256,11 @@ Just ["Banana","Apple"]
 ghci> safeTail []
 Nothing
 ```
-__Note__: `:{` and `:}` allow you to write multiline definitions in ghci.
+__Note__: `:{` et `:}` permettent d'écrire des définition sur plusieures lignes dans l'interpréteur ghci.
 
-Hooray! No more exceptions.
+Youpi! Plus d'exceptions.
 
-Another way to ensures that `head` and `tail` are safe is the non-empty list:
+Une autre manière de s'assurer que `head` et `tail` sont sures est d'utiliser les _NonEmpty Lists_ :
 
 ```haskell
 ghci> import Data.List.NonEmpty
@@ -278,14 +268,9 @@ ghci> :i NonEmpty
 data NonEmpty a = a .:| [a]
 ```
 
-From its definition we can see that `NonEmpty` requires the first element to be
-present. This symbol `:|` is a constructor just like `:`, in fact the definition of
-`NonEmpty` is identical to that of lists, except it omits the `[]` (Nil) case.
+En regard de plus près la définition, on s'aperçoit que `NonEmpty` oblige la présence d'un premier élément. Le symbole `:|` est un constructeur comme `:`, dans les faits la définition de `NonEmpty` est identique à la définition des _Lists_ vues précédemment, à la nuance prêt qu'elle omet le cas `[]` (_Nil_).
 
-This handles the partiality problem the exact opposite way as the
-`Maybe` solution. Instead of forcing the caller of the function to guard against
-the ill-defined case when handling the result of the function, it forces them to
-construct a valid input up front (when calling the function).
+Cette manière aborde le problème avec une approche opposée à la solution précédente avec `Maybe`. Plutôt que de forcer l'appelant de se prémunir des cas manquants lorsqu'il reçoit le résultat, elle force l'appelant à construire sa liste avec des données valides (lorsqu'il appelle la fonction).
 
 ```haskell
 ghci> import Data.List.NonEmpty as NE
@@ -300,9 +285,7 @@ ghci> NE.head []
     ...
 ```
 
-Notice that this time the error is not a runtime exception but a type error, the
-compiler is telling us that we tried to use a (potentially empty) list rather
-than the required `NonEmpty` type.
+Il faut noter que cette erreur n'est pas une erreur d'exécution (_runtime error_) mais une erreur de typage (_type error_), le compileur ghc nous prévient que l'on tente d'utiliser une liste potentiellement vide au lieu du type de liste requis `NonEmpty`.
 
 ### List Performance
 
