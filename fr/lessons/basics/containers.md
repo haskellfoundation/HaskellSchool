@@ -204,7 +204,7 @@ ghci> [1, 2] ++ [3, 4, 1]
 [1, 2, 3, 4, 1]
 ```
 
-### _Head_ / _Tail_
+### Les fonctions utilitaires : _Head_ / _Tail_
 
 Lorsque l'on utilise des _Lists_, il est commun de travailler avec le premier élément (_head_) et le reste des éléments (_tail_).
 
@@ -287,31 +287,21 @@ ghci> NE.head []
 
 Il faut noter que cette erreur n'est pas une erreur d'exécution (_runtime error_) mais une erreur de typage (_type error_), le compileur ghc nous prévient que l'on tente d'utiliser une liste potentiellement vide au lieu du type de liste requis `NonEmpty`.
 
-### List Performance
+### Considération sur les performance
 
-Haskell implements lists as linked lists. The cons cells (the operator `:` is
-called cons, short for constructor) act as the links. This dictates which
-operations can be done quickly and which can be slow:
+Haskell implémente les liste comme des _Linked Lists_. Le constructeur `:` (appelé _cons_ abbrégé de _constructor_) sert de lien (_link_) entre les éléments de la liste. Ce choix a pour conséquences que certaines opérations soient rapides et d'autres lentes : 
 
-Prepending a value to a list is easy and fast - all we have to do is create a
-new cons cell with the element we want to prepend and point it to the existing
-list.
+Ajouter un élément au début d'une liste est facile et rapide. Il suffit de "lier" un nouvel élément à la liste existante avec le constructeur `:`.
 
 ```haskell
 prepend value list = value : list
 ```
 
-On the other hand, since the list data type (as shown above) can be either
-empty (`[]` or `Nil`) or a cons cell that will point to the rest of the list,
-it does not contain information about the length of the list, or a reference to
-the end of the list.
+Par contre, étant donné que la liste peut être vide (`[]` ou `Nil`) ou qu'un élément peut être lié au reste de la liste (comme on l'a vu précédemment), celle-ci ne comporte pas d'information sur sa taille ou de référence vers la fin de la liste.
 
-Because of that, in order to retrieve the length of a list we must walk
-each cons cell and count until we reach the end of the list. To find the
-value at a specific index we need to traverse the list until we reach it.
+Par conséquent, pour récupérer la longueur d'une liste on doit iétrer sur l'ensemble de celle-ci pour compter le nombre d'élément. Pour trouver un élément à un index spécifique, on doit traverser la liste jusqu'à l'atteindre.
 
-Similarly, in order to append a list to an existing list, we need to go to the
-end of the existing list, and add a cons cell that points to the new list:
+De même, pour ajouter un élément à la fin d'une liste existante on doit ajouter un constructeur à la fin de celle-ci et "lier" l'élément :
 
 ```haskell
 append originalList newList =
@@ -320,11 +310,6 @@ append originalList newList =
         x : xs -> x : append xs newList
 ```
 
-The append function defined here is really the same as the `++` operator, as you
-might have deduced we need to be careful when using list append. Particularly
-`++` inside of loops has quadratic performance!
+La fonction `append` definiti ci-dessus est identique à l'opérateur `++`, il faut donc être prudent lorsque l'on veut ajouter un élément en fin de liste. Une concaténation avec `++` dans une boucle donne une compléxité de 𝛰(n²) !
 
-By virtue of the linked list data structure, many list operations run in linear
-time (`𝛰(n)`). In many cases the same operation is significantly slower for
-lists than for other containers, this is a great reason to be familiar with each
-and their tradeoffs!
+En raison de l'implémentation avec des _Linked List_, la majeure partie des opérations sur les listes ont une complexité linéaire en temps (_linear time complexity_, `𝛰(n)`). Dans la plupart des cas ces opérations sont plus lentes qu'avec d'autres _containers_, une bonne raison d'apprendre à connaitre chacun avec leurs avantages et leurs inconvénients !
