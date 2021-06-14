@@ -195,9 +195,9 @@ Un mauvais exemple d'utilisation des _Linked lists_ : implémenter une _Queue_ p
 
 Un exemple concret que l'on rencontre souvent dans des applications est la créationd de requêtes en base de données. Une requête peut retourner soit aucun résultat `[]` soit un certain nombre potentiellement ordonnés`[entity..]`. Les bibliothèques d'accès aux base de données ont rarement besoin de garantir un accès par index performant, ainsi elles laissent cette responsabilité à la fonction appelante.
 
-### List Concatenation
+### Concatenation de _Lists_
 
-List concatenation uses the `++` operator:
+Pour concater deux listes (ou plus), on utilise l'opérateur `++` :
 
 ```haskell
 ghci> [1, 2] ++ [3, 4, 1]
