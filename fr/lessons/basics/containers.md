@@ -339,3 +339,129 @@ Il est intéressant de noter que la contrainte `Eq a` sur la clé permet à la f
 
 Tandis que les _assoc lists_ sont une première introduction aux _containers_ de type clé-valeur comme elles sont construites à partir des types vus précédemment, elles ne sont en réalité que peu utiles au quotidien (il y a des solutions plus adaptées). Comme évoqué précédemment, les listes ne sont pas très performantes pour les fonctions de recherches et la complexité asymptotique est, dans le pire cas de figure, linéaire `𝛰(n)`. Les _assoc lists_ sont souvent utilisées comme structures de données intermédiaires avec pour objectif d'être transformées en `Map`. La conversion en elle même a une complexité de `𝛰(n*log n)` mais la recherche par clé sur une `Map` se fera alors avec une complexité de `𝛰(log n)`. Le coût de conversion, relativement important, est alors très vite rentabilisé à l'utilisation.
 
+## _Sets_
+
+Les _Sets_ sont des _containers_ très intéressants, le principe central d'un _Set_ est l'appartenance (_membership_). Il est commun de créer un _Set_ afin de pouvoir tester ultérieur si une valeur en fait partie.
+
+Un _Set_ ne peut être construit qu'en insérant des élements dans un _Set_ vide :
+
+```haskell
+ghci> import Data.Set as Set
+ghci> :t Set.empty
+Set.empty :: Set a
+ghci> Set.empty
+fromList []
+ghci> Set.insert 1 (Set.insert 2 (Set.insert 3 Set.empty))
+fromList [1,2,3]
+```
+
+ou à partir d'une _List_ :
+
+```haskell
+ghci> Set.fromList [4,3,2,1]
+fromList [1,2,3,4]
+```
+
+On peut noter que les éléments ont été triés après la création du `Set`. L'implémentation concrète des _Sets_ en Haskell sont des _binary trees_, qui dépendent de la capacité des données à être triées (_orderable_). On peut voir cette contrainte `Ord a` dans la définition des fonctions du type `Set` comme `insert` ou `fromList` par exemple.
+
+```haskell
+ghci> :t Set.insert
+Set.insert :: Ord a => a -> Set a -> Set a
+ghci> :t Set.fromList
+Set.fromList :: Ord a => [a] -> Set a
+ghci> :t Set.member
+Set.member :: Ord a => a -> Set a -> Bool
+```
+Les _Sets_ ont une proprité très utile : il ne peut pas y avoir de duplication en leur sein. Si on insère plusieurs fois la même valeur, il ne se passe rien.
+
+```haskell
+ghci> insert1 = Set.insert 1
+ghci> insert1 Set.empty
+fromList [1]
+ghci> insert1 (insert1 Set.empty)
+fromList [1]
+ghci> insert1 (insert1 (insert1 Set.empty))
+fromList [1]
+```
+Passons à la pratique avec un cas d'utilisation concret.
+
+```haskell
+ghci> evens = Set.fromList [0,2..1000000]
+ghci> Set.member 7 evens
+False
+ghci> Set.member 200012 evens
+True
+ghci> isEven n = Set.member n evens
+ghci> isEven 7
+False
+ghci> isEven 8
+True
+```
+
+On peut se dire "hmmm une limite à `1000000` pour les nombres pairs est incorrect", et ce serait pertinent! Ceci met en évidence une caractéristique des _Sets_ en Haskell, elles sont dites "finies" de part la rigueur nécessaire des structure de données bas niveau permettant de les créer. C'est une différence notable avec les _Lists_ qui sont potentiellement "infinies" et dites _lazy_ (évaluées à l'utilisation plutôt qu'à la création).
+
+### Opérations sur les _Sets_
+
+La fonction `difference` du module `Data.Set` est un bon moyen de séparer un _Set_ en nouveaux _Sets_ à partir de la notion d'appartenance (_membership_) de ses éléments avec un autre _Set_. Plus simplement, cette fonction retourne un _Set_ avec tous les éléments du premier _Set_ en retirant les éléments présents dans le second _Set_.
+
+```haskell
+ghci> set1 = Set.fromList ["a", "b", "c", "1", "2", "3"]
+ghci> letters = Set.fromList ["a", "b", "c"]
+ghci> nums = Set.fromList ["1", "2", "3"]
+ghci> Set.difference set1 letters
+fromList ["1","2","3"]
+ghci> Set.difference set1 nums
+fromList ["a","b","c"]
+```
+
+La fonction `union` va combiner les éléments (sans duplication) de deux _Sets_.
+
+```haskell
+ghci> nums
+fromList ["1","2","3"]
+ghci> letters
+fromList ["a","b","c"]
+ghci> Set.union nums letters
+fromList ["1","2","3","a","b","c"]
+ghci> set1
+fromList ["1","2","3","a","b","c"]
+ghci> Set.union nums set1
+fromList ["1","2","3","a","b","c"]
+```
+
+La fonction `intersection` va permettre de récupérer les éléments communs aux deux _Sets_.
+
+```haskell
+ghci> Set.intersection nums letters
+fromList []
+ghci> Set.intersection nums set1
+fromList ["1","2","3"]
+ghci> Set.intersection letters set1
+fromList ["a","b","c"]
+ghci> Set.intersection (fromList [1, 2]) (fromList [2, 3])
+fromList [2]
+```
+
+`isSubsetOf` va permettre de vérifier si l'ensemble des éléments d'un _Set_ sont contenu dans un autre _Set_.
+
+```haskell
+ghci> Set.isSubsetOf letters set1
+True
+ghci> Set.isSubsetOf nums set1
+True
+ghci> Set.isSubsetOf nums letters
+False
+ghci> Set.isSubsetOf set1 nums
+False
+```
+
+Tout _Set_ est un contenu par lui-même.
+
+```haskell
+ghci> Set.isSubsetOf nums nums
+True
+ghci> Set.isSubsetOf set1 set1
+True
+ghci> Set.isSubsetOf letters letters
+True
+```
