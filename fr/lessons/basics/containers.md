@@ -65,7 +65,7 @@ ghci> empty
               (and originally defined in ‘Data.Set.Internal’)
 ```
 
-## Tuples
+## _Tuples_
 
 Les _Tuples_ sont la première structure de donnée que vous allez découvrir en Haskell. C'est une structure de donnée, simple, primitive, avec une syntaxe native et concise. Les champs sont référencés selon leurs positions. Théoriquement, Les _Tuples_ peuvent contenir un nombre infini de champs, c'est ce qu'on appelle *arité* (_arity_). En réalité, les spécifications _Haskell Report_ n'imposent aux compilateurs (et interpréteurs) une taille minimale que de 15 champs (_15-tuple_). `GHC` supporte un nombre de champs allant jusqu'à 62 (_62-tuple_). Le nombre minimum de champs pour un _tuple_ est de 2 (_2-tuple_). C'est sur ce type que nous nous concentreront étant donné qu'Haskell fournit de nombreuses fonctionnalités par défaut pour celui-ci. A titre d'exemple, voici un _tuple_ avec 8 champs (_8-tuple_).
 
@@ -155,7 +155,7 @@ ghci> twoTupleToThreeTuple True (1, 2, 3)
                   ...
 ```
 
-## Lists
+## _Lists_
 
 En terme d'utilisation, les _Lists_ permettent de résoudre le problème d'extension qu'on a observer avec les _Tuples_ (capacité à augmenter la taille du _container_ sans créer une nouvelle instance). Par contre, une _List_ ne peut contenir qu'un unique type de donnée (elles sont dites homogènes). Les _Lists_ sont construites avec une syntaxe spécifique : les crochets avec des virgules séparant chaque éléments.
 
@@ -287,7 +287,7 @@ ghci> NE.head []
 
 Il faut noter que cette erreur n'est pas une erreur d'exécution (_runtime error_) mais une erreur de typage (_type error_), le compileur ghc nous prévient que l'on tente d'utiliser une liste potentiellement vide au lieu du type de liste requis `NonEmpty`.
 
-### Considération sur les performance
+### Considération sur les performances
 
 Haskell implémente les liste comme des _Linked Lists_. Le constructeur `:` (appelé _cons_ abbrégé de _constructor_) sert de lien (_link_) entre les éléments de la liste. Ce choix a pour conséquences que certaines opérations soient rapides et d'autres lentes : 
 
@@ -310,6 +310,32 @@ append originalList newList =
         x : xs -> x : append xs newList
 ```
 
-La fonction `append` definiti ci-dessus est identique à l'opérateur `++`, il faut donc être prudent lorsque l'on veut ajouter un élément en fin de liste. Une concaténation avec `++` dans une boucle donne une compléxité de 𝛰(n²) !
+La fonction `append` definit ci-dessus est identique à l'opérateur `++`, il faut donc être prudent lorsque l'on veut ajouter un élément en fin de liste. Une concaténation avec `++` dans une boucle donne une compléxité de 𝛰(n²) !
 
 En raison de l'implémentation avec des _Linked List_, la majeure partie des opérations sur les listes ont une complexité linéaire en temps (_linear time complexity_, `𝛰(n)`). Dans la plupart des cas ces opérations sont plus lentes qu'avec d'autres _containers_, une bonne raison d'apprendre à connaitre chacun avec leurs avantages et leurs inconvénients !
+
+## _Assoc(iation) lists_
+
+Jusqu'à maintenant on a vu l'accès aux valeurs d'une _List_ à partir de ses indexes ou aux valeurs d'un _Tuple_ par _pattern matching_. Cependant, un des cas d'utilisation les plus répandus dans l'utilisation des _containers_ est le stockage de paires clés-valeurs (_Key-Value_). Les _Assoc(iation) Lists_ (_assoc_ dans la litérature) permettent ce stockage en combinant _List_ et _Tuple_ (_2-tuple_). Etant donné que ces structures de données ne sont que la combinaison des deux autres, la seule chose nécessaire est une fonctionalité de recherche (_lookup_) qui est fournit par le `Data.List` de la bibliothèque par défaut.   
+
+```haskell
+ghci> import Data.List as List
+ghci> assoc = [("foo", True), ("bar", False)]
+ghci> :t assoc
+assoc :: [(String, Bool)]
+ghci> :t List.lookup
+List.lookup :: Eq a => a -> [(a, b)] -> Maybe b
+ghci> List.lookup "foo" assoc
+Just True
+ghci> List.lookup "bar" assoc
+Just False
+ghci> List.lookup "baz" assoc
+Nothing
+```
+
+On retrouve ici la gestion du cas d'erreur en cas d'absence de résultat grâce au type `Maybe`. En effet, il est toujours *possible* de rechercher une clé absente de la liste. Dans ce cas, aucun résultat ne peut être retourner et on obtient la valeur `Nothing`.
+
+Il est intéressant de noter que la contrainte `Eq a` sur la clé permet à la fonction de recherche _lookup_ de réaliser une comparaison d'égalité entre le critère de recherche et les clés de la liste.
+
+Tandis que les _assoc lists_ sont une première introduction aux _containers_ de type clé-valeur comme elles sont construites à partir des types vus précédemment, elles ne sont en réalité que peu utiles au quotidien (il y a des solutions plus adaptées). Comme évoqué précédemment, les listes ne sont pas très performantes pour les fonctions de recherches et la complexité asymptotique est, dans le pire cas de figure, linéaire `𝛰(n)`. Les _assoc lists_ sont souvent utilisées comme structures de données intermédiaires avec pour objectif d'être transformées en `Map`. La conversion en elle même a une complexité de `𝛰(n*log n)` mais la recherche par clé sur une `Map` se fera alors avec une complexité de `𝛰(log n)`. Le coût de conversion, relativement important, est alors très vite rentabilisé à l'utilisation.
+
