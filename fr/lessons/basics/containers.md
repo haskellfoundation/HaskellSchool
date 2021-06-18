@@ -513,9 +513,89 @@ Un lecteur averti notera qu'en réalité la _map_ n'est pas mise à jour. Le sec
 
 Les _maps_ sont vraiment très adaptées pour persister en mémoire des états qui devront être récupérer à partir d'une clé, d'un type préalablement définit. Ceci est du au bonnes performances de recherche à partir des clés qui caractérisent les _maps_ grâce à la contraite de tri sur leurs clés, on a une complexité asymptotique (`𝛰(log n)`). Un exemple évident est le stockage de session sur un serveur d'une application web. L'état de la session peut être stocké dans une _map_ avec l'id présent dans le _cookie_ de session comme clé. Ainsi, l'état de la session est accessible de manière performante via cette _map_ pour chaque requête. Cette solution ne permet pas non plus de gérer un nombre infini de session mais vous serez étonnés de voir à quelle point elle est efficace, pour répondre simplement aux besoins de la plupart des applications ! 
 
-### Une _Map_ avec des clés sans contraintes de tri : _HashMaps_
+### Une _Map_ avec "des clés sans contraintes de tri" : _HashMaps_
 
 Dans certains cas, on veut utiliser comme clé, un type qui ne respecte pas la contrainte de tri. Les _Hashmap_ sont faites pour ça. Une _Hashmap_ va "hacher" la clé (quelque soit le type tant qu'il est _hashable_) pour la rendre "ordonnable" !
 
 Le module qui exporte le type `HashMap` et ses fonctions est `Data.HashMap.Strict`, il fait parti du _package_ `unordered-containers`. L'_api_ est identique à celle de `Map` excepté que la contrainte sur la clé est `Hashable k` au lieu de `Ord k`.
 
+## Vectors
+
+Parfois on souhaite avoir une _list_ comme _conatiner_ avec de bonnes performances d'accès aux données. Dans la plupart des langages, les _arrays_ sont la structure de données de base pour gérer des séquences de données. Haskell possède également ce type de structure de données et l'implémentation la plus populaire est le type `Vector` de la bibliothèque `vector`.
+
+Un des aspects les plus intéressants à propos de ce type est qu'il offre un accès aux données de `𝛰(1)`. La bibliothèque offre les deux types d'accesseurs _safe_ et _unsafe_ comme pour les _lists_ vues précédemment.
+
+Voici un exemple d'un _container_ qui nous permet de stocker et récupérer les caractères _ascii_ à partir de leur code.
+
+__Note__: Vous pouvez installer la biblithèques `vector` dans votre interpréteur _ghci_ grâce aux commandes : `cabal repl --build-depends "vector"` ou `stack exec --package vector -- ghci`
+
+```haskell
+ghci> import Data.Vector as V
+ghci> asciiChars = V.fromList ['\NUL'..'\DEL']
+ghci> asciiChars ! 48
+'0'
+ghci> asciiChars ! 97
+'a'
+ghci> asciiChars ! 65
+'A'
+ghci> asciiChars !? 65
+Just 'A'
+ghci> asciiChars !? 128
+Nothing
+ghci> asciiChars !? 127
+Just '\DEL'
+```
+
+Ils offrent également une capacité à subdiviser un _vector_ en plusieurs autres de manière performante `𝛰(1)`. la fonction `slice` prend un index de départ, la longueur voulue et le _vector_ à subdiviser, elle retourne le nouveau _vector_. Cette fonction est _unsafe_ : si l'index de départ additionné à la longueur demandée donne un résultat supérieur à la longueur du _vector_ une erreur aura lieu à l'exécution (_runtime error_) !
+
+```haskell
+ghci> :t V.slice
+V.slice :: Int -> Int -> Vector a -> Vector a
+ghci> lowerCase = V.slice 97 26 asciiChars
+ghci> lowerCase
+"abcdefghijklmnopqrstuvwxyz"
+ghci> upperCase = V.slice 65 26 asciiChars
+ghci> upperCase
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+ghci> nums = V.slice 48 10 asciiChars
+ghci> V.length nums
+128
+ghci> nums
+"0123456789"
+-- Error case, the asciiChars vectors has length 128, and our slice supposes a
+-- length of 97 + 92 (189)
+ghci> V.slice 97 92 asciiChars
+"*** Exception: ./Data/Vector/Generic.hs:408 (slice): invalid slice (97,92,128)
+CallStack (from HasCallStack):
+  error, called at ./Data/Vector/Internal/Check.hs:87:5 in vector-0.12.3.0-8cc976946fcdbc43a65d82e2ca0ef40a7bb90b17e6cc65c288a8b694f5ac3127:Data.Vector.Internal.Check
+```
+
+## Overloaded Lists
+
+Vous aurez noté que l'on utilise souvent la fonction `fromList` pour construire nos _containers_. Il y a une extension (`OverloadedLists`) qui permet d'utiliser la syntaxe de création des _lists_. L'inconvénient est que si le type n'est pas explicitement fournit les messages d'erreur ne seront pas précis.
+
+```haskell
+ghci> :set -XOverloadedLists -- This is the language extension
+ghci> [1,2,3] :: Set Int
+fromList [1,2,3]
+ghci> [1,2,3] :: Vector Int
+[1,2,3]
+ghci> [('a', 1),('b', 2),('c', 3)] :: Map Char Int
+fromList [('a',1),('b',2),('c',3)]
+```
+
+Si on n'explicite pas le type voulu...
+
+```haskell
+ghci> ["1", "2", "3"]
+
+<interactive>:11:1: error:
+    • Illegal equational constraint GHC.Exts.Item l ~ [Char]
+      (Use GADTs or TypeFamilies to permit this)
+    • When checking the inferred type
+        it :: forall {l}.
+              (GHC.Exts.IsList l, GHC.Exts.Item l ~ [Char]) =>
+              l
+```
+
+L'erreur est particulièrement peut explicite, c'est pourquoi cette extension n'est pas activée par défaut. C'est toujours bon à savoir !
