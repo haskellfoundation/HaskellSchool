@@ -474,7 +474,7 @@ Une `Map` nécessite que ses clés respectent une contrainte de tri (`Ord k`) to
 
 Le type `Map` et les fonctions qui permettent d'intéragir avec sont importés du module `Data.Map` qui fait partie du _package_ `containers`. Pas d'inquiétude pour les dépendances à ce stade, _containers_ est une bibliothèque centrale et est intégrée dans l'interpréteur _ghci_.
 
-Comme les _sets_, une _map_ doit être contruite à partir d'une _map_ vide en inserant des paires de clé-valeur :
+Comme les _sets_, une _map_ doit être contruite à partir d'une _map_ vide en insérant des paires clé-valeur :
 
 ```haskell
 ghci> import Data.Map (Map)
@@ -487,17 +487,16 @@ ghci> Map.insert "a" 'a' (Map.insert "b" 'b' (Map.insert "c" 'c' Map.empty))
 fromList [("a",'a'),("b",'b'),("c",'c')]
 ```
 
-ou créer à partir d'une liste :
+ou créées à partir d'une liste :
 
 ```haskell
 ghci> Map.fromList [(4, '4'), (3, '3'), (2, '2'), (1,'1')]
 fromList [(1,'1'),(2,'2'),(3,'3'),(4,'4')]
 ```
 
-## Updating Values to a Map
+### Mettre à jour une valeur dans une _map_
 
-A useful function to be aware of is `adjust`. This lets us update a value at a
-specified key, only if it exists, if not the old map is returned.
+`adjust` est une fonction utile à connaitre. Elle permet de mettre à jour la valeur d'une clé spécifique, uniquement si elle existe, si ce n'est pas le cas il n'y a pas de modification et la _map_ existante est retournée.
 
 ```haskell
 ghci> Map.adjust (+2) "first" oneItem
@@ -508,29 +507,15 @@ ghci> Map.adjust (+2) "second" oneItem
 fromList [("first",1)]
 ```
 
-The observant reader will notice that `adjust` doesn't actually update the map.
-The second invocation of adjust returns the original `oneItem` map, this makes
-sense when you consider that all data in Haskell is immutable!
+Un lecteur averti notera qu'en réalité la _map_ n'est pas mise à jour. Le second appel à `adjust` retourne la _map_ originelle `oneItem` ce que fait sens étant donné que toutes les données en Haskell sont immuables (_immutables_) !
 
-## When to use Maps
+### Quand l'utiliser ?
 
-Maps are really great for in memory persistence of state that will need to be
-retrieved by a key of some arbitrary type. This is is because maps have great
-lookup asymptotics (`𝛰(log n)`) due to the ordering on the key values. The
-example that immediately springs to mind is session storage on the server in a
-web application. The session state can be indexed by an id that is stored in
-the cookie, and the session state can be retrieved from an in memory `Map` on
-every request. This solution doesn't scale infinitely, but you would be
-surprised how well it works!
+Les _maps_ sont vraiment très adaptées pour persister en mémoire des états qui devront être récupérer à partir d'une clé, d'un type préalablement définit. Ceci est du au bonnes performances de recherche à partir des clés qui caractérisent les _maps_ grâce à la contraite de tri sur leurs clés, on a une complexité asymptotique (`𝛰(log n)`). Un exemple évident est le stockage de session sur un serveur d'une application web. L'état de la session peut être stocké dans une _map_ avec l'id présent dans le _cookie_ de session comme clé. Ainsi, l'état de la session est accessible de manière performante via cette _map_ pour chaque requête. Cette solution ne permet pas non plus de gérer un nombre infini de session mais vous serez étonnés de voir à quelle point elle est efficace, pour répondre simplement aux besoins de la plupart des applications ! 
 
-## HashMaps
+### Une _Map_ avec des clés sans contraintes de tri : _HashMaps_
 
-There are some cases where we do not have an ordering on our type, but still
-want to use it as a key to index a map. In this case we probably want to reach
-for a hashmap. A hashmap simply hashes the key, et voilà, we have an ordering!
-This does require that the key type is hashable though.
+Dans certains cas, on veut utiliser comme clé, un type qui ne respecte pas la contrainte de tri. Les _Hashmap_ sont faites pour ça. Une _Hashmap_ va "hacher" la clé (quelque soit le type tant qu'il est _hashable_) pour la rendre "ordonnable" !
 
-The module that exports the `HashMap` data type and functionality is called
-`Data.HashMap.Strict`, it lives in the `unordered-containers` package. The api
-is identical to `Map` aside from a `Hashable k` constraint instead of an `Ord k`
-on the key.
+Le module qui exporte le type `HashMap` et ses fonctions est `Data.HashMap.Strict`, il fait parti du _package_ `unordered-containers`. L'_api_ est identique à celle de `Map` excepté que la contrainte sur la clé est `Hashable k` au lieu de `Ord k`.
+
