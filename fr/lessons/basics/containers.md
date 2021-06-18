@@ -465,3 +465,72 @@ True
 ghci> Set.isSubsetOf letters letters
 True
 ```
+
+## _Maps_
+
+En Haskell, les _Maps_ sont le _container_ prvilégié pour le stockage de données sous forme clé-valeur, parfois également appelées dictionnaires (_dictionnaries_)
+
+Une `Map` nécessite que ses clés respectent une contrainte de tri (`Ord k`) tout comme une `Set` pour ses valeurs. La raison est la même que pour les _Sets_, un _balanced binary tree_ est utilisé comme structure de données dans l'implémentation bas-niveau du type `Map` en Haskell, qui nécessite cette capacité à trier les clés.
+
+Le type `Map` et les fonctions qui permettent d'intéragir avec sont importés du module `Data.Map` qui fait partie du _package_ `containers`. Pas d'inquiétude pour les dépendances à ce stade, _containers_ est une bibliothèque centrale et est intégrée dans l'interpréteur _ghci_.
+
+Comme les _sets_, une _map_ doit être contruite à partir d'une _map_ vide en inserant des paires de clé-valeur :
+
+```haskell
+ghci> import Data.Map (Map)
+ghci> import qualified Data.Map as Map
+ghci> :t Map.empty
+Map.empty :: Map k a
+ghci> Map.empty
+fromList []
+ghci> Map.insert "a" 'a' (Map.insert "b" 'b' (Map.insert "c" 'c' Map.empty))
+fromList [("a",'a'),("b",'b'),("c",'c')]
+```
+
+ou créer à partir d'une liste :
+
+```haskell
+ghci> Map.fromList [(4, '4'), (3, '3'), (2, '2'), (1,'1')]
+fromList [(1,'1'),(2,'2'),(3,'3'),(4,'4')]
+```
+
+## Updating Values to a Map
+
+A useful function to be aware of is `adjust`. This lets us update a value at a
+specified key, only if it exists, if not the old map is returned.
+
+```haskell
+ghci> Map.adjust (+2) "first" oneItem
+fromList [("first",3)]
+ghci> :t Map.adjust
+Map.adjust :: Ord k => (a -> a) -> k -> Map k a -> Map k a
+ghci> Map.adjust (+2) "second" oneItem
+fromList [("first",1)]
+```
+
+The observant reader will notice that `adjust` doesn't actually update the map.
+The second invocation of adjust returns the original `oneItem` map, this makes
+sense when you consider that all data in Haskell is immutable!
+
+## When to use Maps
+
+Maps are really great for in memory persistence of state that will need to be
+retrieved by a key of some arbitrary type. This is is because maps have great
+lookup asymptotics (`𝛰(log n)`) due to the ordering on the key values. The
+example that immediately springs to mind is session storage on the server in a
+web application. The session state can be indexed by an id that is stored in
+the cookie, and the session state can be retrieved from an in memory `Map` on
+every request. This solution doesn't scale infinitely, but you would be
+surprised how well it works!
+
+## HashMaps
+
+There are some cases where we do not have an ordering on our type, but still
+want to use it as a key to index a map. In this case we probably want to reach
+for a hashmap. A hashmap simply hashes the key, et voilà, we have an ordering!
+This does require that the key type is hashable though.
+
+The module that exports the `HashMap` data type and functionality is called
+`Data.HashMap.Strict`, it lives in the `unordered-containers` package. The api
+is identical to `Map` aside from a `Hashable k` constraint instead of an `Ord k`
+on the key.
