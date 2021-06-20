@@ -110,7 +110,7 @@ myTuple :: (Bool, [Char])
 ```
 
 We can also leave a tuple field blank, and this turns it into a function. This
-technique is called tuple sectioning. This requires the langauge extension
+technique is called tuple sectioning. This requires the language extension
 `TupleSections`.
 
 ```haskell
@@ -331,7 +331,7 @@ Another way to ensures that `head` and `tail` are safe is the non-empty list:
 ```haskell
 ghci> import Data.List.NonEmpty
 ghci> :i NonEmpty
-data NonEmpty a = a .:| [a]
+data NonEmpty a = a :| [a]
 ```
 
 From its definition we can see that `NonEmpty` requires the first element to be
@@ -601,7 +601,7 @@ Like sets, a map can be constructed by inserting key value pairs into an empty m
 
 ```haskell
 ghci> import Data.Map (Map)
-ghci> import qualifide Data.Map as Map
+ghci> import qualified Data.Map as Map
 ghci> :t Map.empty
 Map.empty :: Map k a
 ghci> Map.empty
@@ -617,7 +617,7 @@ ghci> Map.fromList [(4, '4'), (3, '3'), (2, '2'), (1,'1')]
 fromList [(1,'1'),(2,'2'),(3,'3'),(4,'4')]
 ```
 
-## Updating Values to a Map
+### Updating Values to a Map
 
 A useful function to be aware of is `adjust`. This lets us update a value at a
 specified key, only if it exists, if not the old map is returned.
@@ -635,7 +635,7 @@ The observant reader will notice that `adjust` doesn't actually update the map.
 The second invocation of adjust returns the original `oneItem` map, this makes
 sense when you consider that all data in Haskell is immutable!
 
-## When to use Maps
+### When to use Maps
 
 Maps are really great for in memory persistence of state that will need to be
 retrieved by a key of some arbitrary type. This is is because maps have great
@@ -646,7 +646,7 @@ the cookie, and the session state can be retrieved from an in memory `Map` on
 every request. This solution doesn't scale infinitely, but you would be
 surprised how well it works!
 
-## HashMaps
+### HashMaps
 
 There are some cases where we do not have an ordering on our type, but still
 want to use it as a key to index a map. In this case we probably want to reach
@@ -662,7 +662,7 @@ on the key.
 
 Sometimes we want a list like container where we can have performant indexed
 access. In fact arrays are often the primitive sequential data structure in
-lots of popular programming langauges. Haskell has this kind of data structures
+lots of popular programming languages. Haskell has this kind of data structure
 too, and the most popular implementation is the `Vector` type from the `vector`
 library.
 
