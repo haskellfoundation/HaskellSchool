@@ -8,13 +8,6 @@ This file is targeted at the translators and serves as a basic tutorial for tran
 
 Class names and proper nouns do not get translated.
 
-
-### Table of Contents
-
-- [Glossary - Russian](#glossary-russian)
-  - [Elixir-related terms](#russian-elixir-related-terms)
-  - [CS terms](#russian-cs-terms)
-
 ### <a name="glossary-russian"></a> Glossary - Russian
 
 This Translation table is adapted from the [Russian Haskell community wiki](https://github.com/ruHaskell/ruhaskell/wiki/Translation).
