@@ -2,16 +2,12 @@ script_direction: ltr
 menu: Menu
 project:
   title: Haskell School
-  description: The premier destination for learning and mastering Haskell
+  description: The reference destination for learning and mastering Haskell
 table_of_contents: Table of Contents
 share: Share This Page
 sections:
   home: Home
   basics: Basics
-  advanced: Advanced
-  specifics: Specifics
-  ecto: Ecto
-  libraries: Libraries
   blog: Blog
   contributors: Contributors
   translation_report: Translation Report
@@ -34,28 +30,6 @@ translation_report:
   last_commit: Last Commit
 
 interlang:
-  ar: Arabiс
-  bg: Bulgarian
-  bn: Bengali
-  de: German
   en: English
-  es: Spanish
   fr: French
-  gr: Greek
-  id: Indonesian
-  it: Italian
-  ja: Japanese
-  ko: Korean
-  ms: Malaysian
-  "no": Norwegian
-  pl: Polish
-  pt: Portuguese
   ru: Russian
-  sk: Slovak
-  ta: Tamil
-  th: Thai
-  tr: Turkish
-  uk: Ukranian
-  vi: Vietnamese
-  zh-hans: Chinese
-  zh-hant: Traditional Chinese
