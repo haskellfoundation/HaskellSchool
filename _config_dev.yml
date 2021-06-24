@@ -1,5 +1,6 @@
 port: 4001
 url: http://localhost
+baseurl: /
 
 # assets:
 #   compress:

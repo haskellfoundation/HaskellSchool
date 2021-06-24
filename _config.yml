@@ -1,10 +1,10 @@
 # Setup
 name: Haskell School
-url: https://haskell.foundation
-baseurl: /HaskellSchool
+url: https://haskellfoundation.github.io/
 permalink: /blog/:title/
 default_lang: en
 exclude_from_localization: []
+encoding: utf-8
 
 plugins:
   - jekyll-assets
