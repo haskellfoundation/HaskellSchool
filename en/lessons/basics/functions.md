@@ -3,422 +3,236 @@ version: 1.0.0
 title: Functions
 ---
 
-
+Functions are at the heart of every Haskell program, and are first-class in the language.  
+They can be passed as parameters to other functions, and returned as computation results.  
+You'll see some examples of functions below.
 
 {% include toc.html %}
 
 ## Anonymous Functions
 
-Just as the name implies, an anonymous function has no name.
-As we saw in the `Enum` lesson, these are frequently passed to other functions.
-To define an anonymous function in Elixir we need the `fn` and `end` keywords.
-Within these we can define any number of parameters and function bodies separated by `->`.
+Anonymous functions, or Lambdas, are one of the building blocks of Haskell. They have the following syntax:
 
-Let's look at a basic example:
-
-```elixir
-iex> sum = fn (a, b) -> a + b end
-iex> sum.(2, 3)
-5
+**Structure of a lambda**
+```
+ ╭─ input of the function
+ │ 
+ │ ╭─ Separator between input and output
+ │ │ 
+ │ │  ╭─ output of the function
+\x -> x
 ```
 
-### The & Shorthand
+And incidentally, the example above is one of the most primordial functions: the identity function, or `id`.  
+This function is very simple, as it returns precisely the argument that you pass to it.
 
-Using anonymous functions is such a common practice in Elixir there is shorthand for doing so:
+In Lambdas, the input parameter can be any name, and the output can be any expression.
 
-```elixir
-iex> sum = &(&1 + &2)
-iex> sum.(2, 3)
-5
+### Syntactic Sugar: currying
+
+In Haskell, all your functions have one argument. Inspired by the Lambda Calculus, this design is however extended in
+the language through syntactic sugar that allows you to express yourself better:
+
+```haskell
+-- Syntactic sugar
+\x y -> x + y
+ 
+-- Currified version
+\x -> \y -> x + y
 ```
 
-As you probably already guessed, in the shorthand version our parameters are available to us as `&1`, `&2`, `&3`, and so on.
+The term is currification: your function of two arguments has been transformed behind the scenes into a function
+of one argument containing another function of one argument, containing itself the operation.  
+In Javascript, this would be expressed like this:
 
-## Pattern Matching
+```javascript
+// Syntactic sugar
+function (x, y) {
+  return x + y;
+}
 
-Pattern matching isn't limited to just variables in Elixir, it can be applied to function signatures as we will see in this section.
+// Currified version
+function (x) {
+  return function (y) {
+    return x + y;
+  };
+}
 
-Elixir uses pattern matching to check through all possible match options and select the first matching option to run:
-
-```elixir
-iex> handle_result = fn
-...>   {:ok, result} -> IO.puts "Handling result..."
-...>   {:ok, _} -> IO.puts "This would be never run as previous will be matched beforehand."
-...>   {:error} -> IO.puts "An error has occurred!"
-...> end
-
-iex> some_result = 1
-1
-iex> handle_result.({:ok, some_result})
-Handling result...
-:ok
-iex> handle_result.({:error})
-An error has occurred!
-```
-
-## Named Functions
-
-We can define functions with names so we can easily refer to them later.
-Named functions are defined within a module using the `def` keyword .
-We'll learn more about Modules in the next lessons, for now we'll focus on the named functions alone.
-
-Functions defined within a module are available to other modules for use.
-This is a particularly useful building block in Elixir:
-
-```elixir
-defmodule Greeter do
-  def hello(name) do
-    "Hello, " <> name
-  end
-end
-
-iex> Greeter.hello("Sean")
-"Hello, Sean"
-```
-
-If our function body only spans one line, we can shorten it further with `do:`:
-
-```elixir
-defmodule Greeter do
-  def hello(name), do: "Hello, " <> name
-end
-```
-
-Armed with our knowledge of pattern matching, let's explore recursion using named functions:
-
-```elixir
-defmodule Length do
-  def of([]), do: 0
-  def of([_ | tail]), do: 1 + of(tail)
-end
-
-iex> Length.of []
-0
-iex> Length.of [1, 2, 3]
+> let a = function (x) { return function (y) { return x + y }; }
+> a(1)
+[Function (anonymous)]
+> a(1)(2)
 3
 ```
 
-### Function Naming and Arity
+### Function Application
 
-We mentioned earlier that functions are named by the combination of given name and arity (number of arguments).
-This means you can do things like this:
+The function application syntax is the following:
 
-```elixir
-defmodule Greeter2 do
-  def hello(), do: "Hello, anonymous person!"   # hello/0
-  def hello(name), do: "Hello, " <> name        # hello/1
-  def hello(name1, name2), do: "Hello, #{name1} and #{name2}"
-                                                # hello/2
-end
-
-iex> Greeter2.hello()
-"Hello, anonymous person!"
-iex> Greeter2.hello("Fred")
-"Hello, Fred"
-iex> Greeter2.hello("Fred", "Jane")
-"Hello, Fred and Jane"
+```console?lang=haskell&prompt=ghci>,ghci|
+ghci> (\x y -> x + y) 2 3 
+5
 ```
 
-We've listed the function names in comments above.
-The first implementation takes no arguments, so it is known as `hello/0`; the second takes one argument so it is known as `hello/1`, and so on.
-Unlike function overloads in some other languages, these are thought of as _different_ functions from each other.
-(Pattern matching, described just a moment ago, applies only when multiple definitions are provided for function definitions with the _same_ number of arguments.)
-
-### Functions and Pattern Matching
-
-Behind the scenes, functions are pattern-matching the arguments that they're called with.
-
-Say we needed a function to accept a map but we're only interested in using a particular key.
-We can pattern-match the argument on the presence of that key like this:
-
-```elixir
-defmodule Greeter1 do
-  def hello(%{name: person_name}) do
-    IO.puts "Hello, " <> person_name
-  end
-end
-```
-
-Now let's say we have a map describing a person named Fred:
-
-```elixir
-iex> fred = %{
-...> name: "Fred",
-...> age: "95",
-...> favorite_color: "Taupe"
-...> }
-```
-
-These are the results we'll get when we call `Greeter1.hello/1` with the `fred` map:
-
-```elixir
-# call with entire map
-...> Greeter1.hello(fred)
-"Hello, Fred"
-```
-
-What happens when we call the function with a map that _doesn't_ contain the `:name` key?
-
-```elixir
-# call without the key we need returns an error
-...> Greeter1.hello(%{age: "95", favorite_color: "Taupe"})
-** (FunctionClauseError) no function clause matching in Greeter1.hello/1
-
-    The following arguments were given to Greeter1.hello/1:
-
-        # 1
-        %{age: "95", favorite_color: "Taupe"}
-
-    iex:12: Greeter1.hello/1
+Here, the function between parentheses has been fully applied. But remember that these
+are actually two functions on top of each-other, which means that,
+much like in the above JavaScript example, it will return a function if you only pass it one argument:
 
 ```
-
-The reason for this behavior is that Elixir pattern-matches the arguments that a function is called with against the arity the function is defined with.
-
-Let's think about how the data looks when it arrives to `Greeter1.hello/1`:
-
-```Elixir
-# incoming map
-iex> fred = %{
-...> name: "Fred",
-...> age: "95",
-...> favorite_color: "Taupe"
-...> }
+(\x y -> x + y) 2
+│ 
+╰─ (\y -> 2 + y) 5
+   │ 
+   ╰─ 2 + 5
 ```
 
-`Greeter1.hello/1` expects an argument like this:
+This ability to do partial application unlocks many abilities, one of which allowing you to build computations whose
+parameters are not available all at the same time during the program's lifetime.
 
-```elixir
-%{name: person_name}
+## Named functions
+
+However, one can only go so far with anonymous functions. This is why you can give names to your functions:
+
+```console?lang=haskell&prompt=ghci>,ghci|
+ghci> addOne x = x + 1
+ghci> addOne 2
+3
 ```
 
-In `Greeter1.hello/1`, the map we pass (`fred`) is evaluated against our argument (`%{name: person_name}`):
+## Higher-order functions
 
-```elixir
-%{name: person_name} = %{name: "Fred", age: "95", favorite_color: "Taupe"}
+There exists a third kind of functions, whose first argument is itself an anonymous functions: higher-order functions.
+Because functions are first-class components of Haskell, they are no more magical than anonymous or named functions.
+
+They become particularly useful when you need to control the application of a function over a parameter:
+
+```console?lang=haskell&prompt=ghci>,ghci|
+ghci> applyTwice f x = f (f x)
+ghci> applyTwice addOne 2
+4
 ```
 
-It finds that there is a key that corresponds to `name` in the incoming map.
-We have a match! And as a result of this successful match, the value of the `:name` key in the map on the right (i.e. the `fred` map) is bound to the variable on the left (`person_name`).
+Some of the most well-known higher-order functions out there are `map` and `filter`
 
-Now, what if we still wanted to assign Fred's name to `person_name` but we ALSO want to retain awareness of the entire person map? Let's say we want to `IO.inspect(fred)` after we greet him.
-At this point, because we only pattern-matched the `:name` key of our map, thus only binding the value of that key to a variable, the function doesn't have knowledge of the rest of Fred.
+```console?lang=haskell&prompt=ghci>,ghci|
+ghci> map (\x -> x + 2) [1,2,3,4]
+[3,4,5,6]
 
-In order to retain it, we need to assign that entire map to its own variable for us to be able to use it.
-
-Let's start a new function:
-
-```elixir
-defmodule Greeter2 do
-  def hello(%{name: person_name} = person) do
-    IO.puts "Hello, " <> person_name
-    IO.inspect person
-  end
-end
+ghci> filter odd [1,2,3,4,5,6]
+[1,3,5]
 ```
 
-Remember that Elixir will pattern match the argument as it comes in.
-Therefore in this case, each side will pattern match against the incoming argument and bind to whatever it matches with.
-Let's take the right side first:
+## Local definitions: `where` & `let … in`
 
-```elixir
-person = %{name: "Fred", age: "95", favorite_color: "Taupe"}
+You can introduce bindings, such as local definitions or intermediate results, through two different syntaxes:  
+the `where` keyword, and the `let … in` construct.
+
+### `where`
+
+Here is an example of a function using `where` to store local functions:
+
+```haskell
+processInt x = timesTwo (addOne x)
+  where
+    addOne y = x + 1
+    timesTwo z = y * 2
 ```
 
-Now, `person` has been evaluated and bound to the entire fred-map.
-We move on to the next pattern-match:
+_Note: the binding `x` is reusable throught the rest of the bindings._
 
-```elixir
-%{name: person_name} = %{name: "Fred", age: "95", favorite_color: "Taupe"}
+Other functions will be unable to use `addOne` and `timesTwo` since they belong to the scope of `processInt`.
+
+### `let … in`
+
+You can use its sibling, `let`, to produce the same result:
+
+```haskell
+processInt2 x =
+  let addOne y = y + 1
+      timesTwo z = z * 2  
+   in timesTwo (addOne x)
 ```
 
-Now this is the same as our original `Greeter1` function where we pattern matched the map and only retained Fred's name.
-What we've achieved is two variables we can use instead of one:
+These two syntaxes exist to better let you write down your mental process. Even though it is good form to stick with one
+when in a collaborative setting (at work, for example), you are absolutely free to pick the one that makes you happy to
+write Haskell. :)
 
-1. `person`, referring to `%{name: "Fred", age: "95", favorite_color: "Taupe"}`
-2. `person_name`, referring to `"Fred"`
+## Function Composition
 
-So now when we call `Greeter2.hello/1`, we can use all of Fred's information:
+Function composition is one of the most primordial aspects of functional programming, and Haskell offers builtin operators
+to enable it.
 
-```elixir
-# call with entire person
-...> Greeter2.hello(fred)
-"Hello, Fred"
-%{age: "95", favorite_color: "Taupe", name: "Fred"}
-# call with only the name key
-...> Greeter2.hello(%{name: "Fred"})
-"Hello, Fred"
-%{name: "Fred"}
-# call without the name key
-...> Greeter2.hello(%{age: "95", favorite_color: "Taupe"})
-** (FunctionClauseError) no function clause matching in Greeter2.hello/1
+The `(.)` operator that is used for function composition is a legacy of the mathematical notation:
 
-    The following arguments were given to Greeter2.hello/1:
-
-        # 1
-        %{age: "95", favorite_color: "Taupe"}
-
-    iex:15: Greeter2.hello/1
+Let two functions  
+```
+f : X |-> Y  
+g : Y |-> Z  
 ```
 
-So we've seen that Elixir pattern-matches at multiple depths because each argument matches against the incoming data independently, leaving us with the variables to call them by inside our function.
+To go from X to Z, these two functions are composed like this:
 
-If we switch the order of `%{name: person_name}` and `person` in the list, we will get the same result because each are matching to fred on their own.
+`g(f(x))` -- read "g of f"
 
-We swap the variable and the map:
+To simplify the notation, this composition is also written:
 
-```elixir
-defmodule Greeter3 do
-  def hello(person = %{name: person_name}) do
-    IO.puts "Hello, " <> person_name
-    IO.inspect person
-  end
-end
+`g ∘ f : X |-> Z`
+
+Which can be applied to an argument like this:
+
+`(g ∘ f)(x)`
+
+And this notation is so convenient that Haskell has kept it.
+
+As such, if you have two or more functions that can fit like Lego bricks, nothing more is needed than simply getting
+the arguments right. Remember the `processInt` function from earlier? It can now be written like this:
+
+```console?lang=haskell&prompt=ghci>,ghci|
+ghci> let addOne y = y + 1
+ghci> let timesTwo z = z * 2
+ghci> let processInt3 x = (addOne . timesTwo) x
+ghci> processInt3 2
+5
+
+-- And you can have some fun
+ghci> let processInt4 x = (addOne . timesTwo . addOne . timesTwo) x
+ghci> processInt4 5
+23
 ```
 
-And call it with the same data we used in `Greeter2.hello/1`:
+## Bonus: tacit, or "point-free" style
 
-```elixir
-# call with same old Fred
-...> Greeter3.hello(fred)
-"Hello, Fred"
-%{age: "95", favorite_color: "Taupe", name: "Fred"}
+Tacit style allows you to omit the arguments (or "points") of a function when declaring or applying it.  
+While it can be quicker and help with equational reasoning, the loss of readability that it incurs needs to be a factor
+in your decision to use it.
+
+For example, a wrapper function that does not change its arguments may as well not define them in the function declaration:
+
+```Haskell
+fun2 x y = fun1 x y
 ```
 
-Remember that even though it looks like `%{name: person_name} = person` is pattern-matching the `%{name: person_name}` against the `person` variable, they're actually _each_ pattern-matching to the passed-in argument.
+can perfectly be translated to
 
-**Summary:** Functions pattern-match the data passed in to each of its arguments independently.
-We can use this to bind values to separate variables within the function.
-
-### Private Functions
-
-When we don't want other modules accessing a specific function we can make the function private.
-Private functions can only be called from within their own Module.
-We define them in Elixir with `defp`:
-
-```elixir
-defmodule Greeter do
-  def hello(name), do: phrase() <> name
-  defp phrase, do: "Hello, "
-end
-
-iex> Greeter.hello("Sean")
-"Hello, Sean"
-
-iex> Greeter.phrase
-** (UndefinedFunctionError) function Greeter.phrase/0 is undefined or private
-    Greeter.phrase()
+```Haskell
+fun2 = fun1
 ```
 
-### Guards
+Another example is the function that searches for a number in a list, 
 
-We briefly covered guards in the [Control Structures](../control-structures) lesson, now we'll see how we can apply them to named functions.
-Once Elixir has matched a function any existing guards will be tested.
-
-In the following example we have two functions with the same signature, we rely on guards to determine which to use based on the argument's type:
-
-```elixir
-defmodule Greeter do
-  def hello(names) when is_list(names) do
-    names
-    |> Enum.join(", ")
-    |> hello
-  end
-
-  def hello(name) when is_binary(name) do
-    phrase() <> name
-  end
-
-  defp phrase, do: "Hello, "
-end
-
-iex> Greeter.hello ["Sean", "Steve"]
-"Hello, Sean, Steve"
+```haskell
+(\list -> elem 2 list)
 ```
 
-### Default Arguments
+can be reduced to
 
-If we want a default value for an argument we use the `argument \\ value` syntax:
-
-```elixir
-defmodule Greeter do
-  def hello(name, language_code \\ "en") do
-    phrase(language_code) <> name
-  end
-
-  defp phrase("en"), do: "Hello, "
-  defp phrase("es"), do: "Hola, "
-end
-
-iex> Greeter.hello("Sean", "en")
-"Hello, Sean"
-
-iex> Greeter.hello("Sean")
-"Hello, Sean"
-
-iex> Greeter.hello("Sean", "es")
-"Hola, Sean"
+```Haskell
+elem 2
 ```
 
-When we combine our guard example with default arguments, we run into an issue.
-Let's see what that might look like:
+And these functions are equivalent.
 
-```elixir
-defmodule Greeter do
-  def hello(names, language_code \\ "en") when is_list(names) do
-    names
-    |> Enum.join(", ")
-    |> hello(language_code)
-  end
+---
 
-  def hello(name, language_code \\ "en") when is_binary(name) do
-    phrase(language_code) <> name
-  end
-
-  defp phrase("en"), do: "Hello, "
-  defp phrase("es"), do: "Hola, "
-end
-
-** (CompileError) iex:31: definitions with multiple clauses and default values require a header.
-Instead of:
-
-    def foo(:first_clause, b \\ :default) do ... end
-    def foo(:second_clause, b) do ... end
-
-one should write:
-
-    def foo(a, b \\ :default)
-    def foo(:first_clause, b) do ... end
-    def foo(:second_clause, b) do ... end
-
-def hello/2 has multiple clauses and defines defaults in one or more clauses
-    iex:31: (module)
-```
-
-Elixir doesn't like default arguments in multiple matching functions, it can be confusing.
-To handle this we add a function head with our default arguments:
-
-```elixir
-defmodule Greeter do
-  def hello(names, language_code \\ "en")
-
-  def hello(names, language_code) when is_list(names) do
-    names
-    |> Enum.join(", ")
-    |> hello(language_code)
-  end
-
-  def hello(name, language_code) when is_binary(name) do
-    phrase(language_code) <> name
-  end
-
-  defp phrase("en"), do: "Hello, "
-  defp phrase("es"), do: "Hola, "
-end
-
-iex> Greeter.hello ["Sean", "Steve"]
-"Hello, Sean, Steve"
-
-iex> Greeter.hello ["Sean", "Steve"], "es"
-"Hola, Sean, Steve"
-```
+And that is it for the basics about functions! In the next lesson, you will see that functions not only have a body, but also a type.  
+You will see how to leverage types and make them a tool rather than a constraint.
