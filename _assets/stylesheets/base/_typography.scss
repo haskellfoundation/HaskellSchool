@@ -144,7 +144,6 @@
 
     &.highlighter-rouge {
       padding: 0.2em 0.4em;
-      margin: 0;
       font-size: 80%;
     }
 	}
@@ -157,7 +156,7 @@
 
 		code {
 			display: block;
-			line-height: 1.75;
+			line-height: 1.15;
 			padding: 1em 1.5em;
 			overflow-x: auto;
 		}

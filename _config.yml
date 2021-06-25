@@ -33,6 +33,9 @@ assets:
     - _assets/stylesheets
     - _assets/fonts
 
+
+ghc_version: 9.0
+
 sitemap:
   file: '/sitemap.xml'
   include_posts:
