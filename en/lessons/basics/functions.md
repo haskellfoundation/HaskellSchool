@@ -14,12 +14,13 @@ You'll see some examples of functions below.
 Anonymous functions, or Lambdas, are one of the building blocks of Haskell. They have the following syntax:
 
 **Structure of a lambda**
+
 ```
- ╭─ input of the function
+ ╭─ Input of the function
  │ 
  │ ╭─ Separator between input and output
  │ │ 
- │ │  ╭─ output of the function
+ │ │  ╭─ Output of the function
 \x -> x
 ```
 
@@ -64,6 +65,7 @@ function (x) {
 > a(1)(2)
 3
 ```
+
 
 ### Function Application
 
