@@ -1,14 +1,15 @@
 
 <!-- Menu -->
 <nav id="menu">
-  <span class="stack-info ghc-version">Haskell — GHC 9.0</span>
+  <span class="stack-info ghc-version">Haskell — GHC {{site.ghc_version}}</span>
   <header class="major">
     <h2>{{ page.locale.menu }}</h2>
     <p>{{ locale.project.description }}</p>
   </header>
   <ul>
     <li>
-      <a href="/{% if page.lang %}{{ page.lang }}/{% endif %}" class="{% unless locale.disable_transform %} up {%endunless%}{% if page.layout == "home" %}active{% endif %}">{{ site.data['locales'][language]['sections']['home'] }}</a>
+      <a href="/{% if page.lang %}{{ page.lang }}/{% endif %}" class="{% unless locale.disable_transform %} up {%endunless%}{% if page.layout == "home" %}active{% endif %}">
+        {{ site.data['locales'][language]['sections']['home'] }}</a>
     </li>
   {% for sections in site.contents[language] %}
     {% assign section = sections[0] | strip %}

@@ -1,3 +1,11 @@
 home:
   - home
   - report
+basics:
+  - basics
+  - functions
+  - types
+  - algebraic-data-types
+  - lists-tuples
+  - pattern-matching-control-flow
+  - containers

@@ -1,18 +1,22 @@
 {% capture getting_started %}
-```elixir
-iex> defmodule Hello do
-...>   def print(lang \\ :en)
-...>   def print(:de), do: "Hallo Welt"
-...>   def print(:en), do: "Hello World"
-...>   def print(:es), do: "Hola Mundo"
-...>   def print(:ru), do: "Привет мир"
-...> end
+```haskell
+module Greetings where
 
-iex> Hello.print()
-"Hello World!"
-iex> Hello.print(:es)
+data Lang = EN | DE | ES | RU
+
+hello EN = "Hello World"
+hello DE = "Hallo Welt"
+hello ES = "Hola Mundo"
+hello RU = "Привет мир"
+
+-- Now let's try it
+
+$ ghci Greetings.hs
+ghci> hello EN
+"Hello World"
+ghci> hello ES
 "Hola Mundo"
-iex> Hello.print(:ru)
+ghci> hello RU
 "Привет мир"
 ```
 {% endcapture %}
