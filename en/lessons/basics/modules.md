@@ -40,5 +40,157 @@ entrypoint module.
 
 ## Module Syntax
 
+Module syntax is driven by 2 keywords `module` and `where`. The `module` keyword
+precedes the modules name, which must match the filename, and optionally a
+collection of entities to export. The `where` keyword ends the module
+declaration and indicates the beginning of the module.
+
+Module declaration exposing all entities.
+
+```haskell
+-- src/Example.hs
+module Example where
+
+id :: a -> a
+id a = a
+
+compose :: (b -> c) -> (a -> b) -> (a -> c)
+compose f g = \a -> f (g a)
+```
+
+Here is the same module, but residing at a different filepath.
+
+```haskell
+-- src/Data/Examples/Example.hs
+module Data.Examples.Example where
+
+id :: a -> a
+id a = a
+
+compose :: (b -> c) -> (a -> b) -> (a -> c)
+compose f g = \a -> f (g a)
+```
+
+Modules can export a subset of the entities they contain. In the example below
+only the type `Identity` (and its constructor) and `id` are exported, `compose`
+is completely isolated to the local module scope.
+
+```haskell
+-- src/Identity.hs
+module Identity (
+  Identity(..),
+  id
+) where
+
+data Identity a = Identity a
+
+id :: a -> a
+id a = a
+
+compose :: (b -> c) -> (a -> b) -> (a -> c)
+compose f g = \a -> f (g a)
+```
+
+Modules can also export types, but hide constructors. This means (with respect
+to the example below) that you can speak about things of type `Identity` but you
+cannot construct them yourself. These are sometimes referred to as opaque types.
+
+```haskell
+-- src/Identity.hs
+module Identity (
+  Identity,
+  wrapIdentity
+) where
+
+data Identity a = Identity a
+
+wrapIdentity :: a -> Identity a
+wrapIdentity = Identity
+```
+
+There is only 1 piece of syntax that ever comes before module syntax, that is
+language extensions. We won't go over what they do here, but just so you are
+familiar, this is what they look like.
+
+```haskell
+{-# LANGUAGE OverloadedStrings #-}
+module Identity (
+  Identity,
+  wrapIdentity
+) where
+
+data Identity a = Identity a
+
+wrapIdentity :: a -> Identity a
+wrapIdentity = Identity
+```
 
 ## Import Syntax
+
+Modules can be listed as a dependency within other modules. It is convention to
+have these declarations at the top of a file, below the module declaration.
+
+This is an "open" import, it brings all entities exported by the module into
+scope.
+
+```haskell
+module Example where
+
+import Data.Maybe
+```
+
+Sometimes we want to be explicit about the entities that we are bringing into
+scope. The syntax below brings in all declared entities, and hides all the
+entities that are elided.
+
+```haskell
+module Example where
+
+import Data.Maybe (fromMaybe)
+```
+
+Another technique is to qualify an import so that all use sites are tagged.
+
+
+```haskell
+module Example where
+
+import qualified Data.Maybe
+
+myFromMaybe = Data.Maybe.fromMaybe
+```
+
+Note, you can use qualifications even if a module is not imported as
+`qualified`. This highlights that qualification enforces a namespace, but we can
+always optionally declare the namespace. This is useful for resolving nameing
+collisions. In this example I will use ghci to demonstrate a name collision error.
+
+```console?lang=haskell&prompt=ghci>,ghci|
+ghci> import Data.Map
+ghci> import Data.List
+ghci> :t map
+<interactive>:1:1: error:
+    Ambiguous occurrence ‘map’
+    It could refer to
+       either ‘Data.Map.map’,
+              imported from ‘Data.Map’
+              (and originally defined in ‘Data.Map.Internal’)
+           or ‘Prelude.map’,
+              imported from ‘Prelude’ (and originally defined in ‘GHC.Base’)
+ghci> :t Data.Map.map
+ghci> :t Data.Map.map
+Data.Map.map :: (a -> b) -> Map k a -> Map k b
+ghci> :t Data.List.map
+Data.List.map :: (a -> b) -> [a] -> [b]
+```
+
+If `Data.Maybe` is too long to type out, we can provide an alias for our import
+when qualifying it.
+
+```haskell
+module Example where
+
+import qualified Data.Maybe as Maybe
+
+myFromMaybe = Maybe.fromMaybe
+```
