@@ -162,7 +162,7 @@ myFromMaybe = Data.Maybe.fromMaybe
 
 Note, you can use qualifications even if a module is not imported as
 `qualified`. This highlights that qualification enforces a namespace, but we can
-always optionally declare the namespace. This is useful for resolving nameing
+always optionally declare the namespace. This is useful for resolving naming
 collisions. In this example I will use ghci to demonstrate a name collision error.
 
 ```console?lang=haskell&prompt=ghci>,ghci|
