@@ -21,17 +21,16 @@ exported from a module are called entities. In Haskell those are:
 - Typeclasses
 
 Modules are really just collections of these entities that are exported.
-Modules can be combined through a graph of imports and exports, this is
-sometimes called a dependency graph. These dependency graphs can be packaged
-together as a component. The two most common components are libraries and
-executables. A library allows you to export your modules for re-use in other
-codebases, and an executable consists of an entrypoint (a Main module) to the
-dependency graph that can be run as a program. A good example of a library is
-`base` and `prelude` these libraries ship with GHC, `lens` is a good example of
-a third party library that requires a package manager to import. A good example
-of executables are `xmonad` and `pandoc`. Haskell's most popular package
-managers also have executables that allow them to be run from the command line;
-`cabal-install` and `stack`.
+Modules can be combined through a graph of imports and exports. These
+dependency graphs can be packaged together as a component. The two most common
+components are libraries and executables. A library allows you to export your
+modules for re-use in other codebases, and an executable consists of an
+entrypoint (a Main module) to the dependency graph that can be run as a
+program. A good example of a library is `base` and `prelude`. These libraries
+ship with GHC. A good example of a third party library that requires a package
+manager to import is `lens`. A good example of executables are `xmonad` and
+`pandoc`. Haskell's most popular package managers also have executables that
+allow them to be run from the command line: `cabal-install` and `stack`.
 
 To reiterate, entities are our basic language-level building blocks. Modules
 are groupings of entities with some or all exported. Components are graphs of
@@ -40,12 +39,12 @@ entrypoint module.
 
 ## Module Syntax
 
-Module syntax is driven by 2 keywords `module` and `where`. The `module` keyword
+Module syntax is driven by 2 keywords, `module` and `where`. The `module` keyword
 precedes the modules name, which must match the filename, and optionally a
 collection of entities to export. The `where` keyword ends the module
 declaration and indicates the beginning of the module.
 
-Module declaration exposing all entities.
+Below is an example of a module declaration exposing all entities.
 
 ```haskell
 -- src/Example.hs
