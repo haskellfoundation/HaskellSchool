@@ -92,6 +92,8 @@ id a = a
 compose :: (b -> c) -> (a -> b) -> (a -> c)
 compose f g = \a -> f (g a)
 ```
+__Note__: you'll learn about using and defining types in Haskell in
+[types](../types) and [algebraic data types](../algebraic-data-types).
 
 Modules can also export types, but hide constructors. This means (with respect
 to the example below) that you can speak about things of type `Identity` but you
