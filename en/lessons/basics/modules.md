@@ -1,4 +1,7 @@
---- version: 1.4.1 title: Modules ---
+---
+version: 1.0.0
+title: Modules
+---
 
 We know from experience it's unruly to have all of our functions in the same
 file and scope. In this lesson we're going to cover how to group entities in
@@ -21,18 +24,18 @@ exported from a module are called entities. In Haskell those are:
 - Typeclasses
 
 Modules are really just collections of these entities that are exported.
-Modules can be combined through a graph of imports and exports. These
-dependency graphs can be packaged together as a component. The two most common
-components are libraries and executables. A library allows you to export your
-modules for re-use in other codebases, and an executable consists of an
-entrypoint (a Main module) to the dependency graph that can be run as a
-program. A good example of a library is `base` and `prelude`. These libraries
-ship with GHC. A good example of a third party library that requires a package
-manager to import is `lens`. A good example of executables are `xmonad` and
-`pandoc`. Haskell's most popular package managers also have executables that
-allow them to be run from the command line: `cabal-install` and `stack`.
+Modules can be combined through a graph of imports and exports. This dependency
+graph can be packaged as a component. The two most common components are
+libraries and executables. A library allows you to export your modules for
+re-use in other codebases, and an executable consists of an entrypoint (a Main
+module) to the dependency graph that can be run as a program. A good example of
+a library is `base` which exports `prelude`. The `base` library ships with GHC,
+whereas a third party library that requires a package manager is `lens`. Well
+known haskell executables are `xmonad` and `pandoc`. Haskell's most popular
+package managers also have executables that allow them to be run from the
+command line: `cabal-install` and `stack`.
 
-To reiterate, entities are our basic language-level building blocks. Modules
+To reiterate, an entity is our basic language-level building block. Modules
 are groupings of entities with some or all exported. Components are graphs of
 modules that can be made available in other codebases or executed via an
 entrypoint module.
@@ -40,7 +43,7 @@ entrypoint module.
 ## Module Syntax
 
 Module syntax is driven by 2 keywords, `module` and `where`. The `module` keyword
-precedes the modules name, which must match the filename, and optionally a
+precedes the module's name, which must match the filename, and optionally a
 collection of entities to export. The `where` keyword ends the module
 declaration and indicates the beginning of the module.
 
@@ -107,9 +110,9 @@ wrapIdentity :: a -> Identity a
 wrapIdentity = Identity
 ```
 
-There is only 1 piece of syntax that ever comes before module syntax, that is
+There is only one piece of syntax that ever comes before module syntax; that is
 language extensions. We won't go over what they do here, but just so you are
-familiar, this is what they look like.
+familiar this is what they look like.
 
 ```haskell
 {-# LANGUAGE OverloadedStrings #-}
@@ -129,13 +132,13 @@ wrapIdentity = Identity
 Modules can be listed as a dependency within other modules. It is convention to
 have these declarations at the top of a file, below the module declaration.
 
-This is an "open" import, it brings all entities exported by the module into
+This is an "open" import, and it brings all entities exported by the module into
 scope.
 
 ```haskell
 module Example where
 
-import Data.Maybe
+import Data.Text
 ```
 
 Sometimes we want to be explicit about the entities that we are bringing into
@@ -145,7 +148,7 @@ entities that are elided.
 ```haskell
 module Example where
 
-import Data.Maybe (fromMaybe)
+import Data.Text (head)
 ```
 
 Another technique is to qualify an import so that all use sites are tagged.
@@ -154,9 +157,9 @@ Another technique is to qualify an import so that all use sites are tagged.
 ```haskell
 module Example where
 
-import qualified Data.Maybe
+import qualified Data.Text
 
-myFromMaybe = Data.Maybe.fromMaybe
+textHead = Data.Text.head
 ```
 
 Note, you can use qualifications even if a module is not imported as
@@ -165,10 +168,10 @@ always optionally declare the namespace. This is useful for resolving naming
 collisions. In this example I will use ghci to demonstrate a name collision error.
 
 ```console?lang=haskell&prompt=ghci>,ghci|
-ghci> import Data.Map
-ghci> import Data.List
-ghci> :t map
-<interactive>:1:1: error:
+Prelude> import Data.Map
+Prelude Data.Map> map
+
+<interactive>:2:1: error:
     Ambiguous occurrence ‘map’
     It could refer to
        either ‘Data.Map.map’,
@@ -176,20 +179,19 @@ ghci> :t map
               (and originally defined in ‘Data.Map.Internal’)
            or ‘Prelude.map’,
               imported from ‘Prelude’ (and originally defined in ‘GHC.Base’)
-ghci> :t Data.Map.map
-ghci> :t Data.Map.map
+Prelude Data.Map> :t Data.Map.map
 Data.Map.map :: (a -> b) -> Map k a -> Map k b
-ghci> :t Data.List.map
-Data.List.map :: (a -> b) -> [a] -> [b]
+Prelude Data.Map> :t Prelude.map
+Prelude.map :: (a -> b) -> [a] -> [b]
 ```
 
-If `Data.Maybe` is too long to type out, we can provide an alias for our import
+If `Data.Text` is too long to type out, we can provide an alias for our import
 when qualifying it.
 
 ```haskell
 module Example where
 
-import qualified Data.Maybe as Maybe
+import qualified Data.Text as T
 
-myFromMaybe = Maybe.fromMaybe
+textHead = T.head
 ```
