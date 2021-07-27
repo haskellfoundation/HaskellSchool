@@ -6,10 +6,10 @@ title: Modules
 We know from experience it's unruly to have all of our functions in the same
 file and scope. In this lesson we're going to cover how to group entities in
 modules, and group modules in components. At their most basic, modules are just
-a namespace that allow us to aggregate common pieces of functionality and avoid
-naming collisions. However, modules are use to build up more complex constructs
-called components. Modules also offer a tool for encapsulation, by allowing us
-to choose what we export.
+a namespace that allows us to aggregate common pieces of functionality and
+avoid naming collisions. However, modules are used to build up more complex
+constructs called components. Modules also offer a tool for encapsulation, by
+allowing us to choose what we export.
 
 {% include toc.html %}
 
@@ -74,8 +74,8 @@ compose f g = \a -> f (g a)
 ```
 
 Modules can export a subset of the entities they contain. In the example below
-only the type `Identity` (and its constructor) and `id` are exported, `compose`
-is completely isolated to the local module scope.
+only the type `Identity` (and its constructor) and `id` are exported. The
+`compose` function is completely isolated to the local module scope.
 
 ```haskell
 -- src/Identity.hs
