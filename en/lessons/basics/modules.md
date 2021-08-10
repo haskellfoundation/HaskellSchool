@@ -31,7 +31,7 @@ re-use in other codebases, and an executable consists of an entrypoint (a Main
 module) to the dependency graph that can be run as a program. A good example of
 a library is `base` which exports `prelude`. The `base` library ships with GHC,
 whereas a third party library that requires a package manager is `lens`. Well
-known haskell executables are `xmonad` and `pandoc`. Haskell's most popular
+known haskell executables are [`xmonad`](https://xmonad.org/), [`pandoc`](https://pandoc.org/) and [`shellcheck`](https://www.shellcheck.net). Haskell's most popular
 package managers also have executables that allow them to be run from the
 command line: `cabal-install` and `stack`.
 
