@@ -112,9 +112,10 @@ wrapIdentity :: a -> Identity a
 wrapIdentity = Identity
 ```
 
-There is only one piece of syntax that ever comes before module syntax; that is
-language extensions. We won't go over what they do here, but just so you are
-familiar this is what they look like.
+There is only one piece of syntax that ever comes before module syntax (aside
+from a haddock module declaration comment, haddock is discussed in a separate
+section); that is language extensions. We won't go over what they do here, but
+just so you are familiar this is what they look like.
 
 ```haskell
 {-# LANGUAGE OverloadedStrings #-}
