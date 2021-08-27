@@ -29,9 +29,10 @@ graph can be packaged as a component. The two most common components are
 libraries and executables. A library allows you to export your modules for
 re-use in other codebases, and an executable consists of an entrypoint (a Main
 module) to the dependency graph that can be run as a program. A good example of
-a library is `base` which exports the Prelude. The `base` library ships with GHC,
+a library is `base`, which exports the Prelude. The `base` library ships with GHC,
 whereas a third party library that requires a package manager is `lens`. Well
-known haskell executables are [`xmonad`](https://xmonad.org/), [`pandoc`](https://pandoc.org/) and [`shellcheck`](https://www.shellcheck.net). Haskell's most popular
+known haskell executables are [`xmonad`](https://xmonad.org/), [`pandoc`](https://pandoc.org/)
+and [`shellcheck`](https://www.shellcheck.net). Haskell's most popular
 package managers also have executables that allow them to be run from the
 command line: `cabal-install` and `stack`.
 
@@ -112,28 +113,52 @@ wrapIdentity :: a -> Identity a
 wrapIdentity = Identity
 ```
 
-There is only one piece of syntax that ever comes before module syntax (aside
-from a haddock module declaration comment, haddock is discussed in a separate
-section); that is language extensions. We won't go over what they do here, but
-just so you are familiar this is what they look like.
+There is an important piece of syntax, which comes before module syntax, and
+that is language extensions. We won't exhaustively go over the functionality of
+individual extensions do here, but it is valuable to be able to recognize them.
+At a high level language extensions change and extend the behaviour of GHC. The
+example below `OverloadedStrings` changes the behaviour of the built in string
+syntax (double quotes) to be more general so that you can use different types /
+representations of strings that behave in similar ways.
+
+> Note: If the way that Haskell deals with strings is confusing right now,
+> don't worry. Pretty much every new haskeller goes through this. We choose
+> to introduce it now because language extension syntax is important to
+> recognize and OverloadedStrings is probably the most common language
+> extension. String types and language extensions will be covered in more
+> depth later!
 
 ```haskell
 {-# LANGUAGE OverloadedStrings #-}
-module Identity (
-  Identity,
-  wrapIdentity
-) where
+module Stringlike where
 
-data Identity a = Identity a
+import Data.Text (Text)
+import Data.ByteString (ByteString)
 
-wrapIdentity :: a -> Identity a
-wrapIdentity = Identity
+-- Everything works out because haskell is able
+-- to infer what representation to use from the type!
+
+-- Lists of characters
+stringlikeString :: [Char]
+stringlikeString = "string"
+
+-- UTF8 encoded text
+stringlikeUTF8 :: Text
+stringlikeUTF8 = "string"
+
+-- Packed binary representation
+stringlikePackedBinary :: ByteString
+stringlikePackedBinary = "string"
 ```
 
 ## Import Syntax
 
-Modules can be listed as a dependency within other modules. It is convention to
-have these declarations at the top of a file, below the module declaration.
+Modules can be listed as a dependency within other modules. You might not want
+to think of imports in terms of the dependency chain they imply, in this case
+an import can be though of as bringing some entities from the imported module
+into the scope of your current module. It is necessary to have these
+declarations at the top of a file, below the module declaration and above any
+top level declarations.
 
 This is an "open" import, and it brings all entities exported by the module into
 scope.
