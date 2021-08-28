@@ -12,9 +12,10 @@ operators, and how infix and prefix syntax can be interchanged.
 
 ## Using Operators
 
-Operators in Haskell are functions that can be placed between two arguments: they can
-return a value of any type and their names are either a string of symbols or ordinary
-function names surrounded in backticks. Using infix notation makes it easier to write
+Operators in Haskell are functions that can be placed between two arguments.
+There are two cases where you can use a function as an operator: when the function name
+only consists of symbols or when you surround the function name in backticks.
+Using infix notation makes it easier to write
 expressions containing many common functions:
 
 ```console?lang=haskell&prompt=ghci>,ghci|
@@ -25,7 +26,6 @@ ghci> (`mod` 930233356) . negate $ 4
 ghci> - (7 + 57843)
 -57850
 ```
-__Note__: negate (`-`) is the only unary operator in Haskell.
 
 You may have seen operators such as `+`, `*`, and `.` before. The `$` operator is
 useful for removing parentheses in function application: `abs . subtract 1 $ 2 + 2` is
@@ -44,6 +44,8 @@ ghci> (+) 2 3
 ghci> (5 <=) . (* 2) $ 3
 True
 ```
+__Note__: negate (`-`) is the only unary operator in Haskell. This can make sectioning
+the subtraction operator, which uses the same symbol, difficult.
 
 The parenthesised operators in the above example can be treated as equivalent to the following
 anonymous functions:
@@ -57,6 +59,8 @@ True
 Conversely, to make a regular function identifier an operator, surround it in backticks:
 
 ```console?lang=haskell&prompt=ghci>,ghci|
+ghci> mod 2010 1998
+12
 ghci> 2010 `mod` 1998
 12
 ghci> (`div` 3) . (* 1471) $ 5
