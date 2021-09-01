@@ -15,8 +15,8 @@ operators, and how infix and prefix syntax can be interchanged.
 Operators in Haskell are functions that can be placed between two arguments.
 There are two cases where you can use a function as an operator: when the function name
 only consists of symbols or when you surround the function name in backticks.
-Using infix notation makes it easier to write
-expressions containing many common functions:
+Using infix notation makes it easier to write expressions containing many common functions,
+and this article will help you in understanding and writing such expressions: 
 
 ```console?lang=haskell&prompt=ghci>,ghci|
 ghci> abs . subtract 119 $ 2 + 2
