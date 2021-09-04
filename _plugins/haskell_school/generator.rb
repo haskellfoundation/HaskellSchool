@@ -80,7 +80,14 @@ module HaskellSchool
             if default_lang == lang
               version_severity = 'none'
             else
-              reference_version = site.config['tree'][default_lang][section][chapter_name]['version']
+              default_lang_chapter = site.config['tree'][default_lang][section][chapter_name]
+
+              reference_version =
+                if default_lang_chapter.nil?
+                  nil
+                else
+                  default_lang_chapter['version']
+                end
               version_severity = version_severity(reference_version, chapter['version'])
             end
             site.config['tree'][lang][section][chapter_name]['version_severity'] = version_severity
