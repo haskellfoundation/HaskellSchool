@@ -1,316 +1,231 @@
 ---
-version: 1.4.1
+version: 1.0.0
 title: Modules
 ---
 
-We know from experience it's unruly to have all of our functions in the same file and scope.
-In this lesson we're going to cover how to group functions and define a specialized map known as a struct in order to organize our code more efficiently.
+We know from experience it's unruly to have all of our functions in the same
+file and scope. In this lesson we're going to cover how to group entities in
+modules, and group modules in components. At their most basic, modules are just
+a namespace that allows us to aggregate common pieces of functionality and
+avoid naming collisions. However, modules are used to build up more complex
+constructs called components. Modules also offer a tool for encapsulation, by
+allowing us to choose what we export.
 
 {% include toc.html %}
 
-## Modules
+## Entities, Modules, and Components
 
-Modules allow us to organize functions into a namespace.
-In addition to grouping functions, they allow us to define named and private functions which we covered in the [functions lesson](../functions/).
+In order to understand modules we have to understand the elements that compose
+a module, and what modules can be composed into. The elements that can be
+exported from a module are called entities. In Haskell those are:
 
-Let's look at a basic example:
+- Types and type synonyms
+- Values: constants and functions
+- Typeclasses
 
-```elixir
-defmodule Example do
-  def greeting(name) do
-    "Hello #{name}."
-  end
-end
+Modules are really just collections of these entities that are exported.
+Modules can be combined through a graph of imports and exports. This dependency
+graph can be packaged as a component. The two most common components are
+libraries and executables. A library allows you to export your modules for
+re-use in other codebases, and an executable consists of an entrypoint (a Main
+module) to the dependency graph that can be run as a program. A good example of
+a library is `base`, which exports the Prelude. The `base` library ships with GHC,
+whereas a third party library that requires a package manager is `lens`. Well
+known haskell executables are [`xmonad`](https://xmonad.org/), [`pandoc`](https://pandoc.org/)
+and [`shellcheck`](https://www.shellcheck.net). Haskell's most popular
+package managers also have executables that allow them to be run from the
+command line: `cabal-install` and `stack`.
 
-iex> Example.greeting "Sean"
-"Hello Sean."
+To reiterate, an entity is our basic language-level building block. Modules
+are groupings of entities with some or all exported. Components are graphs of
+modules that can be made available in other codebases or executed via an
+entrypoint module.
+
+## Module Syntax
+
+Module syntax is driven by 2 keywords, `module` and `where`. The `module` keyword
+precedes the module's name, which must match the filename, and optionally a
+collection of entities to export. The `where` keyword ends the module
+declaration and indicates the beginning of the module.
+
+Below is an example of a module declaration exposing all entities.
+
+```haskell
+-- src/Example.hs
+module Example where
+
+id :: a -> a
+id a = a
+
+compose :: (b -> c) -> (a -> b) -> (a -> c)
+compose f g = \a -> f (g a)
 ```
 
-It is possible to nest modules in Elixir, allowing you to further namespace your functionality:
+Here is the same module, but residing at a different filepath.
 
-```elixir
-defmodule Example.Greetings do
-  def morning(name) do
-    "Good morning #{name}."
-  end
+```haskell
+-- src/Data/Examples/Example.hs
+module Data.Examples.Example where
 
-  def evening(name) do
-    "Good night #{name}."
-  end
-end
+id :: a -> a
+id a = a
 
-iex> Example.Greetings.morning "Sean"
-"Good morning Sean."
+compose :: (b -> c) -> (a -> b) -> (a -> c)
+compose f g = \a -> f (g a)
 ```
 
-### Module Attributes
+Modules can export a subset of the entities they contain. In the example below
+only the type `Identity` (and its constructor) and `id` are exported. The
+`compose` function is completely isolated to the local module scope.
 
-Module attributes are most commonly used as constants in Elixir.
-Let's look at a simple example:
+```haskell
+-- src/Identity.hs
+module Identity (
+  Identity(..),
+  id
+) where
 
-```elixir
-defmodule Example do
-  @greeting "Hello"
+data Identity a = Identity a
 
-  def greeting(name) do
-    ~s(#{@greeting} #{name}.)
-  end
-end
+id :: a -> a
+id a = a
+
+compose :: (b -> c) -> (a -> b) -> (a -> c)
+compose f g = \a -> f (g a)
+```
+__Note__: you'll learn about using and defining types in Haskell in
+[types](../types) and [algebraic data types](../algebraic-data-types).
+
+Modules can also export types, but hide constructors. This means (with respect
+to the example below) that you can speak about things of type `Identity` but you
+cannot construct them yourself. These are sometimes referred to as opaque types.
+
+```haskell
+-- src/Identity.hs
+module Identity (
+  Identity,
+  wrapIdentity
+) where
+
+data Identity a = Identity a
+
+wrapIdentity :: a -> Identity a
+wrapIdentity = Identity
 ```
 
-It is important to note there are reserved attributes in Elixir.
-The three most common are:
+There is an important piece of syntax, which comes before module syntax, and
+that is language extensions. We won't exhaustively go over the functionality of
+individual extensions here, but it is valuable to be able to recognise them.
+At a high level language extensions change and extend the behaviour of GHC. The
+example below `OverloadedStrings` changes the behaviour of the built-in string
+syntax (double quotes) to be more general so that you can use different types /
+representations of strings that behave in similar ways.
 
-- `moduledoc` — Documents the current module.
-- `doc` — Documentation for functions and macros.
-- `behaviour` — Use an OTP or user-defined behaviour.
+> __Note__: If the way that Haskell deals with strings is confusing right now,
+> don't worry. Pretty much every new haskeller goes through this. We choose
+> to introduce it now because language extension syntax is important to
+> recognise and OverloadedStrings is probably the most common language
+> extension. String types and language extensions will be covered in more
+> depth later!
 
-## Structs
+```haskell
+{-# LANGUAGE OverloadedStrings #-}
+module Stringlike where
 
-Structs are special maps with a defined set of keys and default values.
-A struct must be defined within a module, which it takes its name from.
-It is common for a struct to be the only thing defined within a module.
+import Data.Text (Text)
+import Data.ByteString (ByteString)
 
-To define a struct we use `defstruct` along with a keyword list of fields and default values:
+-- Everything works out because haskell is able
+-- to infer what representation to use from the type!
 
-```elixir
-defmodule Example.User do
-  defstruct name: "Sean", roles: []
-end
+-- Lists of characters
+stringlikeString :: [Char]
+stringlikeString = "string"
+
+-- UTF8 encoded text
+stringlikeUTF8 :: Text
+stringlikeUTF8 = "string"
+
+-- Packed binary representation
+stringlikePackedBinary :: ByteString
+stringlikePackedBinary = "string"
 ```
 
-Let's create some structs:
+## Import Syntax
 
-```elixir
-iex> %Example.User{}
-%Example.User<name: "Sean", roles: [], ...>
+Modules can be listed as a dependency within other modules using the `import`
+keyword. It is necessary to have these declarations at the top of a file,
+below the module declaration and above any top level declarations.
 
-iex> %Example.User{name: "Steve"}
-%Example.User<name: "Steve", roles: [], ...>
+At this point I'd like to clarify the two mental models we use to think about
+modules and imports. The model we introduced in the beginning of this lesson is
+a graph of dependencies, but it can be more intuitive to think of an import in
+terms of the entities it brings into scope.  Both mental models are correct.
+Thinking of an import as an edge in a dependency chain is useful when trying to
+reduce compile time bottlenecks or debug an import cycle. Thinking in terms of
+the entities being brought in to scope is useful as a user of the imported
+module, and also when trying to prevent namespace collisions.
 
-iex> %Example.User{name: "Steve", roles: [:manager]}
-%Example.User<name: "Steve", roles: [:manager]>
+This is an "open" import, and it brings all entities exported by the module into
+scope.
+
+```haskell
+module Example where
+
+import Data.Text
 ```
 
-We can update our struct just like we would a map:
+Sometimes we want to be explicit about the entities that we are bringing into
+scope. The syntax below brings in all declared entities, and hides all the
+entities that are elided.
 
-```elixir
-iex> steve = %Example.User{name: "Steve"}
-%Example.User<name: "Steve", roles: [...], ...>
-iex> sean = %{steve | name: "Sean"}
-%Example.User<name: "Sean", roles: [...], ...>
+```haskell
+module Example where
+
+import Data.Text (head)
 ```
 
-Most importantly, you can match structs against maps:
+Another technique is to qualify an import so that all use sites are tagged.
 
-```elixir
-iex> %{name: "Sean"} = sean
-%Example.User<name: "Sean", roles: [...], ...>
+
+```haskell
+module Example where
+
+import qualified Data.Text
+
+textHead = Data.Text.head
 ```
 
-As of Elixir 1.8 structs include custom introspection.
-To understand what this means and how we are to use it let us inspect our `sean` capture:
+Note, you can use qualifications even if a module is not imported as
+`qualified`. This highlights that qualification enforces a namespace, but we can
+always optionally declare the namespace. This is useful for resolving naming
+collisions. In this example I will use ghci to demonstrate a name collision error.
 
-```elixir
-iex> inspect(sean)
-"%Example.User<name: \"Sean\", roles: [...], ...>"
+```console?lang=haskell&prompt=ghci>,ghci|
+Prelude> import Data.Map
+Prelude Data.Map> map
+
+<interactive>:2:1: error:
+    Ambiguous occurrence ‘map’
+    It could refer to
+       either ‘Data.Map.map’,
+              imported from ‘Data.Map’
+              (and originally defined in ‘Data.Map.Internal’)
+           or ‘Prelude.map’,
+              imported from ‘Prelude’ (and originally defined in ‘GHC.Base’)
+Prelude Data.Map> :t Data.Map.map
+Data.Map.map :: (a -> b) -> Map k a -> Map k b
+Prelude Data.Map> :t Prelude.map
+Prelude.map :: (a -> b) -> [a] -> [b]
 ```
 
-All of our fields are present which is okay for this example but what if we had a protected field we didn't want to include?
-The new `@derive` feature let's us accomplish just this!
-Let's update our example so `roles` are no longer included in our output:
+If `Data.Text` is too long to type out, we can provide an alias for our import
+when qualifying it.
 
-```elixir
-defmodule Example.User do
-  @derive {Inspect, only: [:name]}
-  defstruct name: nil, roles: []
-end
+```haskell
+module Example where
+
+import qualified Data.Text as T
+
+textHead = T.head
 ```
-
-_Note_: we could also use `@derive {Inspect, except: [:roles]}`, they are equivalent.
-
-With our updated module in place let's take a look at what happens in `iex`:
-
-```elixir
-iex> sean = %Example.User{name: "Sean"}
-%Example.User<name: "Sean", ...>
-iex> inspect(sean)
-"%Example.User<name: \"Sean\", ...>"
-```
-
-The `roles` are excluded from output!
-
-## Composition
-
-Now that we know how to create modules and structs let's learn how to add existing functionality to them via composition.
-Elixir provides us with a variety of different ways to interact with other modules.
-
-### `alias`
-
-Allows us to alias module names; used quite frequently in Elixir code:
-
-```elixir
-defmodule Sayings.Greetings do
-  def basic(name), do: "Hi, #{name}"
-end
-
-defmodule Example do
-  alias Sayings.Greetings
-
-  def greeting(name), do: Greetings.basic(name)
-end
-
-# Without alias
-
-defmodule Example do
-  def greeting(name), do: Sayings.Greetings.basic(name)
-end
-```
-
-If there's a conflict between two aliases or we just wish to alias to a different name entirely, we can use the `:as` option:
-
-```elixir
-defmodule Example do
-  alias Sayings.Greetings, as: Hi
-
-  def print_message(name), do: Hi.basic(name)
-end
-```
-
-It's even possible to alias multiple modules at once:
-
-```elixir
-defmodule Example do
-  alias Sayings.{Greetings, Farewells}
-end
-```
-
-### `import`
-
-If we want to import functions rather than aliasing the module we can use `import`:
-
-```elixir
-iex> last([1, 2, 3])
-** (CompileError) iex:9: undefined function last/1
-iex> import List
-nil
-iex> last([1, 2, 3])
-3
-```
-
-#### Filtering
-
-By default all functions and macros are imported but we can filter them using the `:only` and `:except` options.
-
-To import specific functions and macros, we must provide the name/arity pairs to `:only` and `:except`.
-Let's start by importing only the `last/1` function:
-
-```elixir
-iex> import List, only: [last: 1]
-iex> first([1, 2, 3])
-** (CompileError) iex:13: undefined function first/1
-iex> last([1, 2, 3])
-3
-```
-
-If we import everything except `last/1` and try the same functions as before:
-
-```elixir
-iex> import List, except: [last: 1]
-nil
-iex> first([1, 2, 3])
-1
-iex> last([1, 2, 3])
-** (CompileError) iex:3: undefined function last/1
-```
-
-In addition to the name/arity pairs there are two special atoms, `:functions` and `:macros`, which import only functions and macros respectively:
-
-```elixir
-import List, only: :functions
-import List, only: :macros
-```
-
-### `require`
-
-We could use `require` to tell Elixir you're going to use macros from other module.
-The slight difference with `import` is that it allows using macros, but not functions from the specified module:
-
-```elixir
-defmodule Example do
-  require SuperMacros
-
-  SuperMacros.do_stuff
-end
-```
-
-If we attempt to call a macro that is not yet loaded Elixir will raise an error.
-
-### `use`
-
-With the `use` macro we can enable another module to modify our current module's definition.
-When we call `use` in our code we're actually invoking the `__using__/1` callback defined by the provided module.
-The result of the `__using__/1` macro becomes part of our module's definition.
-To get a better understanding how this works let's look at a simple example:
-
-```elixir
-defmodule Hello do
-  defmacro __using__(_opts) do
-    quote do
-      def hello(name), do: "Hi, #{name}"
-    end
-  end
-end
-```
-
-Here we've created a `Hello` module that defines the `__using__/1` callback inside of which we define a `hello/1` function.
-Let's create a new module so we can try out our new code:
-
-```elixir
-defmodule Example do
-  use Hello
-end
-```
-
-If we try our code out in IEx we'll see that `hello/1` is available on the `Example` module:
-
-```elixir
-iex> Example.hello("Sean")
-"Hi, Sean"
-```
-
-Here we can see that `use` invoked the `__using__/1` callback on `Hello` which in turn added the resulting code to our module.
-Now that we've demonstrated a basic example let's update our code to look at how `__using__/1` supports options.
-We'll do this by adding a `greeting` option:
-
-```elixir
-defmodule Hello do
-  defmacro __using__(opts) do
-    greeting = Keyword.get(opts, :greeting, "Hi")
-
-    quote do
-      def hello(name), do: unquote(greeting) <> ", " <> name
-    end
-  end
-end
-```
-
-Let's update our `Example` module to include the newly created `greeting` option:
-
-```elixir
-defmodule Example do
-  use Hello, greeting: "Hola"
-end
-```
-
-If we give it a try in IEx we should see that the greeting has been changed:
-
-```elixir
-iex> Example.hello("Sean")
-"Hola, Sean"
-```
-
-These are simple examples to demonstrate how `use` works but it is an incredibly powerful tool in the Elixir toolbox.
-As you continue to learn about Elixir keep an eye out for `use`, one example you're sure to see is `use ExUnit.Case, async: true`.
-
-**Note**: `quote`, `alias`, `use`, `require` are macros related to [metaprogramming](../../advanced/metaprogramming).
