@@ -109,23 +109,23 @@ consider using guards
 7        -- An `Int` value
 []       -- An empty list
 (x:xs)   -- A list with one or more values, constructed with `:`
-         -- `x` is the first element of the list, `xs` is the rest of the list
+         -- `x` is the first element of the list, and `xs` is the rest of the list
 Nothing  -- A constructor for the `Maybe` type
 (Just v) -- A constsructor for the `Maybe` type, where `v` is the value
 ```
 
-#### Examples of Not Patterns
+#### Examples of Non-Patterns
 
 ```
-(7 - 2)     -- Functions are not allowed in patterns, `-` is a function
-(x > 5)     -- Functions are not allowed in patterns, `>` is a function
+(7 - 2)     -- Functions are not allowed in patterns: `-` is a function
+(x > 5)     -- Functions are not allowed in patterns: `>` is a function
             -- Consider a guard
-(=="apple") -- Seriously, no functions allowed, `==` is a function
+(=="apple") -- Seriously, no functions allowed: `==` is a function
 ```
 
 ## List Example
 
-Using pattern matching to handle lists is very common, let's see some examples
+Using pattern matching to handle lists is very common. Let's see some examples
 
 ### First Try
 
