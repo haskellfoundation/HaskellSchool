@@ -238,6 +238,21 @@ maybeWithCase mText = let
     "I found: " <> textFound
 ```
 
+### Pattern Matching with Guards
+
+Pattern matching can be combined with guards for a more sophisticated logic
+
+```haskell
+-- Check whether a Maybe Int is positive
+-- Note how the guard is used on the same line as the pattern
+maybePositive :: Maybe Int -> Maybe Int
+maybePositive (Just x) | x >= 0 = Just x
+maybePositive _ = Nothing
+```
+
+We do not need to use `otherwise` because the catch-all symbol (`_`) will 
+catch any inputs that do not satisfy both the pattern and the guard
+
 ## Either
 
 Pattern matching is common for deconstructing Either values
@@ -263,6 +278,6 @@ eitherMulti (Left errMsg) _ = "Error: " <> errMsg
 eitherMulti (Right okMsg) intro = intro <> okMsg
 ```
 
-Notice how the catch-all symbol `_` is used in the first pattern, because we do
+Notice how the catch-all symbol (`_`) is used in the first pattern, because we do
 not need that argument
 

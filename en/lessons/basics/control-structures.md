@@ -165,17 +165,26 @@ subjectiveTemp tmpInF
   where
     tmpInC = (tmpInF - 32.0) * ( 5.0 / 9.0 )
 
--- Clothing Sizer
--- Note that `yourSize` is defined in a where clause, then used in the
--- definition
-whatSize :: Int -> Text
-whatSize heightInCm = "You're a size " <> yourSize
+-- The classic prisoners' dilemma
+-- The input is a tuple of bools, where a value is True if a prisoner tells 
+-- his captors that the other prisoner did the crime, and False if he stays 
+-- silent
+-- Note how the sentences are defined by a guard in the `where` clause 
+-- Both sentences are set at once by putting them together in a tuple
+prisonersDilemma :: (Bool, Bool) -> Text
+prisonersDilemma (prisoner1Talks, prisoner2Talks) =
+    "Prisoner 1 sentenced to " <> prisoner1Sentence 
+    <> " and Prisoner 2 sentenced to " <> prisoner2Sentence
   where
-    yourSize
-        | heightInCm > 0   && heightInCm <= 166 = "Small"
-        | heightInCm > 166 && heightInCm <= 178 = "Medium"
-        | heightInCm > 178                      = "Large"
-        | otherwise                             = "Not sure"
+    (prisoner1Sentence, prisoner2Sentence)
+        | prisoner1Talks     && prisoner2Talks     = (medium  , medium)
+        | prisoner1Talks     && not prisoner2Talks = (scotFree, heavy)
+        | not prisoner1Talks && prisoner2Talks     = (heavy   , scotFree)
+        | not prisoner1Talks && not prisoner2Talks = (light   , light)
+    scotFree  = "0 years"
+    light     = "2 years"
+    medium    = "4 years"
+    heavy     = "6 years"
 ```
 
 ### Usage
