@@ -7,7 +7,7 @@ The impetus of this project is to get readers up to speed and using haskell in r
 2. We believe that this approach will provide a swifter education.
 3. We would like to give the learner the benefit of the doubt.
 
-Therefore the guiding principle of this text is: "Teach the reader to use what you would use, not what you think they are capable of understanding"
+Therefore the guiding principle for writing lessons should be: "Teach the reader to use what you would use, not what you think they are capable of understanding"
 
 ## Technical Specifics
 
