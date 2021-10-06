@@ -21,7 +21,8 @@ file (`.hs`) to be able to run these examples
 ```haskell
 {-# LANGUAGE OverloadedStrings #-}
 
-import Data.Text ( Text )
+import           Data.Text ( Text )
+import qualified Data.Text as T
 ```
 
 ## Enumerated Type Example
@@ -84,8 +85,9 @@ only a single declaration of a function
 ## Pattern Matching Syntax
 
 ```
-functionName (pattern1) = (expression1)
-functionName (pattern2) = (expression2)
+functionName       (pattern1) = (expression1)
+functionName       (pattern2) = (expression2)
+functionName name3@(pattern3) = (expression3)
 ...
 functionName _ = (expressionLast)
 ```
@@ -93,6 +95,8 @@ functionName _ = (expressionLast)
 - A function is defined more than one time, each with a different pattern
 - For the first pattern that matches the value with which the function was
   called, its expression is evaluated
+- Entire patterns can be given local names by preceding them with the at (`@`)
+  symbol
 - The underscore (`_`) is a catch-all that matches any value
 
 ### Patterns In General
@@ -206,6 +210,31 @@ __Note__: Parentheses `()` are required to write patterns with constructors
 __Note__: We do not need the final catch-all symbol `_`, because we have covered
 lists of every possible size: empty, one element, more than one element
 
+### Naming Entire Patterns
+
+We have seen that we can use patterns to deconstruct values, but we can also
+give names to the entire pattern
+
+We can use this feature to improve on the previous function and actually print
+out the length of the list
+
+```haskell
+-- How big is a list?
+-- Note in the last pattern how the entire list is given the name `list1` using
+-- the `@` symbol
+-- Then this name is used to get the length of the entire list
+listSizeName :: [Text] -> Text
+listSizeName []              = "Empty"
+listSizeName (elem1:[])      = "One element: " <> elem1
+listSizeName list1@(elem1:_) = let
+    listLenText 
+        = T.pack       -- Convert String to Text
+        $ show         -- Convert length to String
+        $ length list1 -- Get the length of the list
+    in
+    listLenText <> " elements, starting with: " <> elem1
+```
+
 ## Maybe
 
 ### Pattern Matching in Function Definition
@@ -280,4 +309,118 @@ eitherMulti (Right okMsg) intro = intro <> okMsg
 
 Notice how the catch-all symbol (`_`) is used in the first pattern, because we do
 not need that argument
+
+## Tuples
+
+Pattern matching is a common way to obtain the values held in tuples
+
+```haskell
+-- Compute the area of a rectangle, given its height and width
+rectangleArea :: (Double, Double) -> Double
+rectangleArea (height, width) = height * width
+```
+
+## Records
+
+Records some additional pattern matching features to handle their named fields
+
+### Record Pattern Matching Syntax
+
+```
+functionName RecordDataConstructor1{}                      = (expression1)
+functionName RecordDataConstructor2{ field1 = localName1 } = (expression2)
+functionName RecordDataConstructor3
+    { field1 = localName1, field2 = localName2, ... }      = (expression3)
+```
+
+### Example Record Type
+
+Say we have a this record type
+
+```haskell
+data Vehicle
+    = Aircraft
+        { vaColor :: Text
+        , vaWings :: Int
+        }
+    | Boat
+        { vbColor :: Text 
+        , vbSails :: Int
+        }
+    | Car 
+        { vcColor  :: Text
+        , vcWheels :: Int
+        }
+    deriving (Eq, Show)
+```
+
+### Pattern Matching the Record Constructor
+
+```haskell
+-- Can this vehicle fly in the air?
+-- Even though we only want to match on the data constructor, we have to write
+-- an `_` for each field in the record
+vehicleCanFlyExplicit :: Vehicle -> Bool
+vehicleCanFlyExplicit (Aircraft _ _) = True
+vehicleCanFlyExplicit _              = False
+```
+
+A record type could potentially have a hundred fields, and we would not want to
+write an `_` for each one, so there is a better way
+
+```haskell
+-- Same function as above, with a simpler syntax
+-- Note how the curly braces indicate matching on the data constructor, but 
+-- nothing after
+vehicleCanFly :: Vehicle -> Bool
+vehicleCanFly Aircraft{} = True
+vehicleCanFly _          = False
+```
+
+The empty curly braces (`{}`) mean to fill in the rest of the pattern with
+catch-all underscores (`_`)
+
+### Pattern Matching with Record Fields
+
+Curly braces can also be used to read fields of the record
+
+```haskell
+-- What color is this vehicle?
+-- Note how the contents of a field are given a name, which is then used 
+-- in the function definition
+vehicleColor :: Vehicle -> Text
+vehicleColor Aircraft { vaColor = color } = "A " <> color <> " aircraft"
+vehicleColor Boat     { vbColor = color } = "A " <> color <> " boat"
+vehicleColor Car      { vcColor = color } = "A " <> color <> " car"
+```
+
+It is also possible to use more than one field
+
+```haskell
+-- What kind of flying vehicle is this?
+-- Note how more than one record field is used in the function definition
+flyingVehicleType :: Vehicle -> Text
+flyingVehicleType Aircraft 
+    { vaColor = color, vaWings = wingQty }
+    | wingQty == 0 = colorText <> "Zeppelin"
+    | wingQty == 1 = colorText <> "Stealth Plane"
+    | wingQty == 2 = colorText <> "Airplane"
+    | wingQty  > 2 = colorText <> "Helicopter"
+    | otherwise    = colorText <> "UFO"
+  where
+    colorText = "A " <> color <> " "
+flyingVehicleType _ = "This vehicle can't fly" 
+```
+
+### Record Pattern Matching Conveniences
+
+Two language extensions can add convenience to working with records and patterns
+
+1. `RecordWildCards` can automaticlly define local names that exactly match the
+   record field names
+2. `NamedFieldPuns` allows you to just input the record field name, and have it
+   defined as a local name
+
+Feel free the explore these further once you feel confident writing record
+patterns by hand
 

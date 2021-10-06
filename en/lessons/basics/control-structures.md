@@ -44,8 +44,9 @@ result = if (boolExpression)
          else (expression2)
 ```
 
-- If the first expression evaluates to `True`, then the expression after the
-  `then` keyword is evaluated
+- The first expression must evaluate to a `Bool`
+- If it evalues to `True`, then the expression after the `then` keyword is 
+  evaluated
 - if it evaluates to `False`, then the expression after the `else` keyword is
   evaluated
 
@@ -98,8 +99,11 @@ result = case (expression) of
 
 - The expression between the `case` and `of` keywords is evaluated
 - Its result is looked up in the list of patterns
-- For the first pattern that matches, its expression is evaluated
+- For the first pattern that matches, its expression (and no other expression) 
+  is evaluated to define the result
 - The underscore (`_`) is a catch-all pattern that will always match
+  - Since the order of patterns mathes, any pattern *after* the `_` will *never*
+    match
 
 ### Examples
 
@@ -139,8 +143,8 @@ result
 ```
 
 - Each expression on the right side of the `|` character evaluates to a `Bool`
-- For the first one which evaluates to `True`, its expression is evaluated to
-  define the result
+- For the first one which evaluates to `True`, its expression (and no other
+  expression) is evaluated to define the result
 - Note how the `=` symbol is not used between the result and the guards
 
 ### Examples
