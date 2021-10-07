@@ -3,27 +3,27 @@ version: 1.0.0
 title: Control Structures
 ---
 
-Recall that Haskell functions are *definitions*, not lists of instructions
+Recall that Haskell functions are *definitions*, not lists of instructions.
 
 In imperative programming, control structures are used to decide which block of
-code should be executed
+code should be executed.
 
 In Haskell, they are used instead to decide how a certain value should be
-defined
+defined.
 
 __Note__: Usually control structures are used directly in the definition of a 
 function, but they can also be used in the definition of any intermediate
-value inside a function (we will see examples of both)
+value inside a function (we will see examples of both).
 
 Let's have a look at the control structures available in Haskell, and some
-examples of how they work
+examples of how they work.
 
 {% include toc.html %}
 
 ## Extensions and Imports
 
 You will need to add the following lines to the top of your Haskell source 
-file (`.hs`) to be able to run these examples
+file (`.hs`) to be able to run these examples:
 
 ```haskell
 {-# LANGUAGE OverloadedStrings #-}
@@ -34,7 +34,7 @@ import Data.Text ( Text )
 ## If Statements
 
 Haskell provides a simple set of keywords for `if` statements, with only a 
-single `else` condition
+single `else` condition.
 
 ### Syntax
 
@@ -44,11 +44,11 @@ result = if (boolExpression)
          else (expression2)
 ```
 
-- The first expression must evaluate to a `Bool`
+- The first expression must evaluate to a `Bool`.
 - If it evalues to `True`, then the expression after the `then` keyword is 
-  evaluated
+  evaluated.
 - if it evaluates to `False`, then the expression after the `else` keyword is
-  evaluated
+  evaluated.
 
 ### Examples
 
@@ -78,14 +78,14 @@ weatherDescription weather tempInC = let
 
 ### Usage
 
-`if` statements are not the most common control structure 
+`if` statements are not the most common control structure.
 
 They are handy if you have a simple definition, and don't need one of the more
-flexible structures we will see soon
+flexible structures we will see soon.
 
 ## Case Statements
 
-Case statements offer a way to switch on any one of a number of possible values
+Case statements offer a way to switch on any one of a number of possible values.
 
 ### Syntax
 
@@ -97,13 +97,13 @@ result = case (expression) of
     _          -> (expressionLast)
 ```
 
-- The expression between the `case` and `of` keywords is evaluated
-- Its result is looked up in the list of patterns
+- The expression between the `case` and `of` keywords is evaluated.
+- Its result is looked up in the list of patterns.
 - For the first pattern that matches, its expression (and no other expression) 
-  is evaluated to define the result
-- The underscore (`_`) is a catch-all pattern that will always match
+  is evaluated to define the result.
+- The underscore (`_`) is a catch-all pattern that will always match.
   - Since the order of patterns mathes, any pattern *after* the `_` will *never*
-    match
+    match.
 
 ### Examples
 
@@ -122,15 +122,15 @@ weatherAdvice weatherDescription =
 ### Usage
 
 Case statements are used commonly for intermediate values, and to decide the path
-that code will take
+that code will take.
 
 The *Pattern Matching* feature they use will be discussed more in the next
-lesson
+lesson.
 
 ## Guards
 
-Guards allow you to choose between one of many possible conditions; they are
-similar to an `if`-`else if` structure
+Guards allow you to choose between one of many possible conditions. They are
+similar to an `if`-`else if` structure.
 
 ### Syntax
 
@@ -142,10 +142,10 @@ result
     | otherwise = (resultExpressionLast)
 ```
 
-- Each expression on the right side of the `|` character evaluates to a `Bool`
+- Each expression on the right side of the `|` character evaluates to a `Bool`.
 - For the first one which evaluates to `True`, its expression (and no other
-  expression) is evaluated to define the result
-- Note how the `=` symbol is not used between the result and the guards
+  expression) is evaluated to define the result.
+- Note how the `=` symbol is not used between the result and the guards.
 
 ### Examples
 
@@ -194,12 +194,12 @@ prisonersDilemma (prisoner1Talks, prisoner2Talks) =
 ### Usage
 
 Guards are commonly used directly in function definitions, especially with
-`where` statements
+`where` statements.
 
 ### Otherwise
 
 `otherwise` is an alias for `True`, and is should be used as a catch-all for the
-last guard, to ensure that one of them matches
+last guard, to ensure that one of them matches.
 
 If a guard statement is evaluated, and none of its expressions return `True`, a
 runtime error occurs!
@@ -234,7 +234,7 @@ safeGuard txtIn
 #### Catching Non-Exhaustive Guards
 
 If you compile with `-Wall` or use `:set -Wall` in GHCi, the compiler will give
-you a warning about non-exhaustive guards
+you a warning about non-exhaustive guards:
 
 ```console?lang=haskell&prompt=ghci>,ghci|
 *Main> :set -Wall

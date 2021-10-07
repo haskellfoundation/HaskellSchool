@@ -4,19 +4,19 @@ title: Pattern Matching
 ---
 
 Haskell offers a powerful type-based system for defining functions called 
-*pattern matching*
+*pattern matching*.
 
-In general, pattern matching is used to deconstruct algebraic types
+In general, pattern matching is used to deconstruct algebraic types.
 
 We will look at an example of how it works, talk about it in general, then see
-some more examples
+some more examples.
 
 {% include toc.html %}
 
 ## Extensions and Imports
 
 You will need to add the following lines to the top of your Haskell source 
-file (`.hs`) to be able to run these examples
+file (`.hs`) to be able to run these examples:
 
 ```haskell
 {-# LANGUAGE OverloadedStrings #-}
@@ -27,7 +27,7 @@ import qualified Data.Text as T
 
 ## Enumerated Type Example
 
-Say we have a type for the four suits of playing cards
+Say we have a type for the four suits of playing cards:
 
 ```haskell
 data Suit = Hearts | Diamonds | Clubs | Spades
@@ -35,7 +35,7 @@ data Suit = Hearts | Diamonds | Clubs | Spades
 
 ### Using a Case Statement
 
-Let's write a case statement which will read the color of the suit
+Let's write a case statement which will read the color of the suit:
 
 ```haskell
 -- Show the color of the suit
@@ -47,16 +47,16 @@ suitColorCase suitIn = case suitIn of
      Spades   -> "Black"
 ```
 
-The case statement is using pattern matching to decide which text to return
+The case statement is using pattern matching to decide which text to return.
 
 The value of `suitIn` is evaluated, and then checked against the given patterns
-in the case statement
-- In this example, each pattern is just a data constructor
-- We will get to see more sophisticated patterns a bit later
+in the case statement.
+- In this example, each pattern is just a data constructor.
+- We will get to see more sophisticated patterns a bit later.
 
 ### Using Pattern Matching
 
-It turns out that we can write the same function more simply
+It turns out that we can write the same function more simply:
 
 ```haskell
 -- Show the color of the suit
@@ -68,19 +68,19 @@ suitColor Spades   = "Black"
 ```
 
 Here we have built the patterns into the function definition, without using a
-case statement
+case statement.
 
 The function works the same way: any input value is inspected and matched
-with the patterns provided for the function definition
+with the patterns provided for the function definition.
 
 In truth, the case statement is redundant in the first example, and as
-Haskell programmers we like to keep our code as concise as is reasonable
+Haskell programmers we like to keep our code as concise as is reasonable.
 
 This can feel awkward at first, since in imperative languages there is usually
-only a single declaration of a function
-- In Haskell, pattern matching syntax is common
+only a single declaration of a function.
+- In Haskell, pattern matching syntax is common.
 - Always keep in mind that Haskell functions are definitions, and with pattern
-  matching we are providing different definitions for different inputs
+  matching we are providing different definitions for different inputs.
 
 ## Pattern Matching Syntax
 
@@ -92,19 +92,19 @@ functionName name3@(pattern3) = (expression3)
 functionName _ = (expressionLast)
 ```
 
-- A function is defined more than one time, each with a different pattern
+- A function is defined more than one time, each with a different pattern.
 - For the first pattern that matches the value with which the function was
-  called, its expression is evaluated
+  called, its expression is evaluated.
 - Entire patterns can be given local names by preceding them with the at (`@`)
-  symbol
-- The underscore (`_`) is a catch-all that matches any value
+  symbol.
+- The underscore (`_`) is a catch-all that matches any value.
 
 ### Patterns In General
 
-A pattern is a combination of data constructors that could match a value
+A pattern is a combination of data constructors that could match a value.
 
 Functions are not permitted in patterns -- If you need to use a function,
-consider using guards
+consider using guards.
 
 #### Examples of Patterns
 
@@ -129,7 +129,7 @@ Nothing  -- A constructor for the `Maybe` type
 
 ## List Example
 
-Using pattern matching to handle lists is very common. Let's see some examples
+Using pattern matching to handle lists is very common. Let's see some examples.
 
 ### First Try
 
@@ -140,17 +140,17 @@ listSize1 []      = "Empty"
 listSize1 [elem1] = "One element: " <> elem1
 ```
 
-This is a dangerous function! Let's discover why
-- The first pattern `[]` will match an empty list
-- The second pattern `[elem1]` will match a single-element list
+This is a dangerous function! Let's discover why:
+- The first pattern `[]` will match an empty list.
+- The second pattern `[elem1]` will match a single-element list.
 - What happens the list has more than one element?
 
-A runtime error happens! This is an appalling to a Haskell developer; the whole
-point of using Haskell is to catch issues like this at compile time
+A runtime error happens! This is an appalling to a Haskell developer. The whole
+point of using Haskell is to catch issues like this at compile time.
 
 ### A Safer Choice
 
-Here is a safe example of list pattern matching
+Here is a safe example of list pattern matching:
 
 ```haskell
 -- How big is a list?
@@ -162,7 +162,7 @@ listSizeCatch _       = "More than one element"
 ```
 
 The `_` pattern matches everything, so we know this function will work no matter
-what the first value is
+what the first value is.
 
 #### Catching Non-Exhaustive Patterns
 
@@ -178,11 +178,11 @@ about non-exhaustive patterns:
 ```
 
 This is why `-Wall` is recommended; nobody wants a nasty surprise when they run
-their code
+their code.
 
 ### Matching With Constructors
 
-We can use any data constructor in patterns, including the list constructor `:`
+We can use any data constructor in patterns, including the list constructor `:`:
 
 ```haskell
 -- How big is a list?
@@ -192,31 +192,31 @@ listSizeCons (elem1:[]) = "One element: " <> elem1
 listSizeCons (elem1:_)  = "More than one element, starting with: " <> elem1
 ```
 
-Notice how the list constructor `:` is used in the patterns
-- In the `(elem1:[])` pattern, it constructs the value with an empty list `[]`
-  - This will only match a single-element list
-  - It is the same as writing `[elem1]`
+Notice how the list constructor `:` is used in the patterns.
+- In the `(elem1:[])` pattern, it constructs the value with an empty list `[]`.
+  - This will only match a single-element list.
+  - It is the same as writing `[elem1]`.
 - In the `(elem1:_)` pattern, it constructs the value with the catch-all
-  symbol `_`
-  - So this pattern will match any list with one or more element
+  symbol `_`.
+  - So this pattern will match any list with one or more element.
   - This pattern would match a single-element list, but it won't since it is
-    listed *after* single-element pattern
+    listed *after* single-element pattern.
 
 Order matters! The first matching pattern will be used, even if later patterns
-would also match
+would also match.
 
-__Note__: Parentheses `()` are required to write patterns with constructors
+__Note__: Parentheses `()` are required to write patterns with constructors.
 
 __Note__: We do not need the final catch-all symbol `_`, because we have covered
-lists of every possible size: empty, one element, more than one element
+lists of every possible size: empty, one element, more than one element.
 
 ### Naming Entire Patterns
 
 We have seen that we can use patterns to deconstruct values, but we can also
-give names to the entire pattern
+give names to the entire pattern.
 
 We can use this feature to improve on the previous function and actually print
-out the length of the list
+out the length of the list:
 
 ```haskell
 -- How big is a list?
@@ -239,7 +239,7 @@ listSizeName list1@(elem1:_) = let
 
 ### Pattern Matching in Function Definition
 
-Pattern matching provides a nice way to deconstruct `Maybe` values
+Pattern matching provides a nice way to deconstruct `Maybe` values:
 
 ```haskell
 maybeToText :: Maybe Text -> Text
@@ -247,15 +247,15 @@ maybeToText Nothing  = "No text! Nothing!"
 maybeToText (Just t) = "The text is: " <> t
 ```
 
-Notice how the value `t` can be used if the `(Just t)` pattern is matched; of
-course this value doesn't exist if the `Maybe` value is `Nothing`
+Notice how the value `t` can be used if the `(Just t)` pattern is matched. Of
+course this value doesn't exist if the `Maybe` value is `Nothing`.
 
 As with lists, the parentheses `()` are necessary when we are matching the
-`Just` constructor
+`Just` constructor.
 
 ### Pattern Matching in an Intermediate Value
 
-Let's use pattern matching in a case statement to define an intermediate value
+Let's use pattern matching in a case statement to define an intermediate value:
 
 ```haskell
 maybeWithCase :: Maybe Text -> Text
@@ -269,7 +269,7 @@ maybeWithCase mText = let
 
 ### Pattern Matching with Guards
 
-Pattern matching can be combined with guards for a more sophisticated logic
+Pattern matching can be combined with guards for a more sophisticated logic:
 
 ```haskell
 -- Check whether a Maybe Int is positive
@@ -280,11 +280,11 @@ maybePositive _ = Nothing
 ```
 
 We do not need to use `otherwise` because the catch-all symbol (`_`) will 
-catch any inputs that do not satisfy both the pattern and the guard
+catch any inputs that do not satisfy both the pattern and the guard.
 
 ## Either
 
-Pattern matching is common for deconstructing Either values
+Pattern matching is common for deconstructing Either values:
 
 ```haskell
 eitherToText :: Either Text Text -> Text
@@ -308,11 +308,11 @@ eitherMulti (Right okMsg) intro = intro <> okMsg
 ```
 
 Notice how the catch-all symbol (`_`) is used in the first pattern, because we do
-not need that argument
+not need that argument.
 
 ## Tuples
 
-Pattern matching is a common way to obtain the values held in tuples
+Pattern matching is a common way to obtain the values held in tuples:
 
 ```haskell
 -- Compute the area of a rectangle, given its height and width
@@ -322,7 +322,8 @@ rectangleArea (height, width) = height * width
 
 ## Records
 
-Records some additional pattern matching features to handle their named fields
+Records include some additional pattern matching features to handle their 
+named fields.
 
 ### Record Pattern Matching Syntax
 
@@ -335,7 +336,7 @@ functionName RecordDataConstructor3
 
 ### Example Record Type
 
-Say we have a this record type
+Say we have this record type:
 
 ```haskell
 data Vehicle
@@ -366,7 +367,7 @@ vehicleCanFlyExplicit _              = False
 ```
 
 A record type could potentially have a hundred fields, and we would not want to
-write an `_` for each one, so there is a better way
+write an `_` for each one. There is a better way:
 
 ```haskell
 -- Same function as above, with a simpler syntax
@@ -378,11 +379,11 @@ vehicleCanFly _          = False
 ```
 
 The empty curly braces (`{}`) mean to fill in the rest of the pattern with
-catch-all underscores (`_`)
+catch-all underscores (`_`).
 
 ### Pattern Matching with Record Fields
 
-Curly braces can also be used to read fields of the record
+Curly braces can also be used to read fields of the record:
 
 ```haskell
 -- What color is this vehicle?
@@ -394,7 +395,7 @@ vehicleColor Boat     { vbColor = color } = "A " <> color <> " boat"
 vehicleColor Car      { vcColor = color } = "A " <> color <> " car"
 ```
 
-It is also possible to use more than one field
+It is also possible to use more than one field:
 
 ```haskell
 -- What kind of flying vehicle is this?
@@ -414,13 +415,14 @@ flyingVehicleType _ = "This vehicle can't fly"
 
 ### Record Pattern Matching Conveniences
 
-Two language extensions can add convenience to working with records and patterns
+Two language extensions can add convenience to working with records and
+patterns.
 
 1. `RecordWildCards` can automaticlly define local names that exactly match the
-   record field names
+   record field names.
 2. `NamedFieldPuns` allows you to just input the record field name, and have it
-   defined as a local name
+   defined as a local name.
 
 Feel free the explore these further once you feel confident writing record
-patterns by hand
+patterns by hand.
 
