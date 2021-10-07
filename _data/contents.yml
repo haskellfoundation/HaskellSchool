@@ -7,5 +7,6 @@ basics:
   - types
   - algebraic-data-types
   - lists-tuples
-  - pattern-matching-control-flow
+  - control-structures
+  - pattern-matching
   - containers
