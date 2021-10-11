@@ -8,5 +8,6 @@ in with pkgs;
       nodejs
       bundler
       zlib
+      xz.dev
     ];
   }
