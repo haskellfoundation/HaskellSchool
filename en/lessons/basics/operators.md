@@ -163,7 +163,12 @@ __Note__: operator symbols beginning with `:` form binary constructors: you'll l
 
 To define the fixity of an operator, put a fixity declaration next to the function
 declaration; you can also define an operator's type signature in this manner. A fixity declaration
-lacking a precedence level defaults to precedence level 9:
+lacking a precedence level defaults to precedence level 9. Don't expect those reading your code to 
+remember the fixity of rare operators: most people only memorise fixity for operators they use very
+frequently, and code that depends on the fixity of rare operators, such as operators defined
+within the codebase, might be unreadable. 
+
+
 ```console?lang=haskell&prompt=ghci>,ghci|
 ghci> :{
 ghci| infixl 5 ^*^
