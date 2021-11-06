@@ -88,8 +88,8 @@ much like in the above JavaScript example, it will return a function if you only
    ╰─ 2 + 5
 ```
 
-This ability to do partial application unlocks many abilities, one of which allowing you to build computations whose
-parameters are not available all at the same time during the program's lifetime.
+This ability to do partial application unlocks many abilities. You can build computations whose
+parameters are not all available at the same time during the program's lifetime.
 
 ## Named functions
 
@@ -103,7 +103,7 @@ ghci> addOne 2
 
 ## Higher-order functions
 
-There exists a third kind of functions, whose first argument is itself an anonymous functions: higher-order functions.
+Functions that take another function as their argument are called "higher-order functions".
 Because functions are first-class components of Haskell, they are no more magical than anonymous or named functions.
 
 They become particularly useful when you need to control the application of a function over a parameter:
@@ -140,7 +140,7 @@ processInt x = timesTwo (addOne x)
     timesTwo z = y * 2
 ```
 
-_Note: the binding `x` is reusable throught the rest of the bindings._
+_Note: the binding `x` is reusable throughout the rest of the bindings._
 
 Other functions will be unable to use `addOne` and `timesTwo` since they belong to the scope of `processInt`.
 
@@ -190,14 +190,14 @@ As such, if you have two or more functions that can fit like Lego bricks, nothin
 the arguments right. Remember the `processInt` function from earlier? It can now be written like this:
 
 ```console?lang=haskell&prompt=ghci>,ghci|
-ghci> let addOne y = y + 1
-ghci> let timesTwo z = z * 2
-ghci> let processInt3 x = (addOne . timesTwo) x
+ghci> addOne y = y + 1
+ghci> timesTwo z = z * 2
+ghci> processInt3 x = (addOne . timesTwo) x
 ghci> processInt3 2
 5
 
 -- And you can have some fun
-ghci> let processInt4 x = (addOne . timesTwo . addOne . timesTwo) x
+ghci> processInt4 x = (addOne . timesTwo . addOne . timesTwo) x
 ghci> processInt4 5
 23
 ```
