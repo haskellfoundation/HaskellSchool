@@ -5,7 +5,7 @@ let
   nixpkgsSrc = commit:
     githubTarball "NixOS" "nixpkgs" commit;
 
-  pkgs = import (nixpkgsSrc "c708f2f92a5bd04b14f58c0d8ab9772d2bc41f96") { };
+  pkgs = import (nixpkgsSrc "5fd4f796b4210d691b1f89e1f29043d635cd20e0") { };
 in with pkgs;
   mkShell {
     LOCALE_ARCHIVE_2_27 = "${glibcLocales}/lib/locale/locale-archive";
