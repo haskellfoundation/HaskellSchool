@@ -134,15 +134,15 @@ the `where` keyword, and the `let … in` construct.
 Here is an example of a function using `where` to store local functions:
 
 ```haskell
-processInt x = timesTwo (addOne x)
+processInt x = timesTwo (addTwo x)
   where
-    addX y = x + 1
-    timesTwo z = y * 2
+    addTwo y = y + 2
+    timesTwo z = z * 2
 ```
 
-__Note__: the binding `x` is reusable throughout the rest of the bindings
+__Note__: the binding `x` is reusable throughout the rest of the block
 
-Other functions will be unable to use `addX` and `timesTwo` since they belong to the scope of `processInt`.
+Other functions will be **not** be able to use `addTwo` and `timesTwo` since they belong to the scope of `processInt`.
 
 ### `let … in`
 
@@ -150,9 +150,9 @@ You can use its sibling, `let`, to produce the same result:
 
 ```haskell
 processInt2 x =
-  let addX y = y + x
+  let addTwo y = y + 2
       timesTwo z = z * 2  
-   in timesTwo (addX x)
+   in timesTwo (addTwo x)
 ```
 
 These two syntaxes exist to better let you write down your mental process. Even though it is good form to stick with one
