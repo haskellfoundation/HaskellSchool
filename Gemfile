@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby '2.7.4'
+ruby '>= 2.7.3', '< 3.0'
 
 gem 'autoprefixer-rails'
 gem 'jekyll'
