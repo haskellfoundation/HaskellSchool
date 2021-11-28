@@ -8,7 +8,7 @@ encoding: utf-8
 
 plugins:
   - jekyll-assets
-  - jekyll-redirect-from
+  # - jekyll-redirect-from
   - jekyll-sitemap
   - kramdown
   - uglifier
