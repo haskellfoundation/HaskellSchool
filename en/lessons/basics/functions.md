@@ -136,13 +136,13 @@ Here is an example of a function using `where` to store local functions:
 ```haskell
 processInt x = timesTwo (addOne x)
   where
-    addOne y = x + 1
+    addX y = x + 1
     timesTwo z = y * 2
 ```
 
-_Note: the binding `x` is reusable throughout the rest of the bindings._
+__Note__: the binding `x` is reusable throughout the rest of the bindings
 
-Other functions will be unable to use `addOne` and `timesTwo` since they belong to the scope of `processInt`.
+Other functions will be unable to use `addX` and `timesTwo` since they belong to the scope of `processInt`.
 
 ### `let … in`
 
@@ -150,9 +150,9 @@ You can use its sibling, `let`, to produce the same result:
 
 ```haskell
 processInt2 x =
-  let addOne y = y + 1
+  let addX y = y + x
       timesTwo z = z * 2  
-   in timesTwo (addOne x)
+   in timesTwo (addX x)
 ```
 
 These two syntaxes exist to better let you write down your mental process. Even though it is good form to stick with one
@@ -186,8 +186,9 @@ Which can be applied to an argument like this:
 
 And this notation is so convenient that Haskell has kept it.
 
-As such, if you have two or more functions that can fit like Lego bricks, nothing more is needed than simply getting
-the arguments right. Remember the `processInt` function from earlier? It can now be written like this:
+As such, when you have a function whose output type is the input type of another function, they are composable.  
+Remember the `processInt` function from earlier? It can now be written like this:
+
 
 ```console?lang=haskell&prompt=ghci>,ghci|
 ghci> addOne y = y + 1
