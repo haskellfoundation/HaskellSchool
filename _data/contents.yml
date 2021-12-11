@@ -10,3 +10,11 @@ basics:
   - control-structures
   - pattern-matching
   - containers
+parsers:
+  - introduction
+  - readp
+  - parsec
+  - megaparsec
+  - attoparsec
+  - appar
+  - parsley
