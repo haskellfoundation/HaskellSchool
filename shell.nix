@@ -10,6 +10,7 @@ in with pkgs;
   mkShell {
     LOCALE_ARCHIVE_2_27 = "${glibcLocales}/lib/locale/locale-archive";
     buildInputs = [
+      git
       ruby
       nodejs
       bundler
