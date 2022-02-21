@@ -10,3 +10,12 @@ basics:
   - control-structures
   - pattern-matching
   - containers
+typeclasses:
+  - what-are-typeclasses
+  - comparison
+  - enumeration
+  - string-representation
+  - iteration
+  - monoids
+  - functors
+  - numbers
