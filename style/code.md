@@ -26,5 +26,17 @@ import qualified Data.Vector as V
 * For terminal commands, _shell_ code blocks must be used, and the prompt should be `$`
 * Keep examples simple when possible
 
+## Typeclasses
 
+Checklist for writing about a typeclass:
 
+* What types belong to the class? What types do not?
+* Give an example of using at least one of the class methods directly.
+* In addition to the class methods themselves, what are some other examples of library functions that include this class as a constraint? Demonstrating a task that is made easier by having this abstraction is often a critical part explaining the value of the typeclass. For example, `Ord`'s `compare` gives rise to `sort`, and `Semigroup`'s associative `(<>)` is what makes `stimes` possible.
+* How are instances of this class typically obtained? Written by hand, or derived? If derived, by what strategy? Include examples for strategies that are commonplace.
+
+Exercise ideas for lessons about a typeclass:
+
+* Give a type signature and definition that is missing a constraint; ask why it does not compile and how to fix it. The reader can check their answer by attempting to compile the code, since the error message gives the missing constraints.
+* Give a monomomorphic type signature for a library function and ask how it can be generalized into a polymorphic function using the class. The reader can check the answer by looking at the library documentation.
+* Give an example expression that includes use of a polymorphic function; ask what the function's most general polymorphic type is, and also what the function's monomorphic type is in this context.
