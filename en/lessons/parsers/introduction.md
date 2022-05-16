@@ -57,6 +57,6 @@ which gives us:
 ]
 ```
 
-As you can see, running `ReadP` gives all the possible parsed result, which can lead to performances issues.
+As you can see, running `ReadP` gives all possible parsed results, which can lead to performances issues.
 
 Going further: [Jake Wheat's Intro to Parsing with Parsec in Haskell](http://jakewheat.github.io/intro_to_parsing/)
