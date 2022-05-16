@@ -5,7 +5,7 @@ title: Introduction to Parser Combinators
 
 {% include toc.html %}
 
-Parsers are ubiquitous in Haskell litterature because, thanks to Parser Combinators it illustrates the power of composition.
+Parsers are ubiquitous in educational Haskell literature because parser combinators can be used to illustrate the power of composition.
 
 Parsers, while being mostly associated to compilers and interpreters, can be found everywhere.
 
