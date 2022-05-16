@@ -30,7 +30,7 @@ tuple =
 
 As you can see, relying on `Monad` allows us to focus on the structure of the input, instead of the structure of the parser.
 
-then, we can define our main parser, composition:
+we can then define our main parser through composition:
 
 ```haskell
 tuples :: ReadP [(String, String)]
