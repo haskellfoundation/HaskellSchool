@@ -13,7 +13,7 @@ Their goal is to take a input data (usually a text or a stream), and produce a s
 
 Parser Combinators are a way to build parsers by composition.
 
-Let's say we want to extract all the tuples of a text, we can start by defining our tuple parser:
+Let's say we want to extract all the tuples from some text. We can start by defining our tuple parser:
 
 ```haskell
 import Text.ParserCombinators.ReadP
