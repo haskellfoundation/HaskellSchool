@@ -37,7 +37,7 @@ tuples :: ReadP [(String, String)]
 tuples = many tuple
 ```
 
-that's the power of Parser Combinator, since `ReadP` implements `Alternative`, any parser can be reused and extended (here via [`many`](https://hackage.haskell.org/package/base/docs/Control-Applicative.html#v:many)).
+This is the power of parser combinators: since `ReadP` implements `Alternative`, any parser can be reused and extended (here via [`many`](https://hackage.haskell.org/package/base/docs/Control-Applicative.html#v:many)).
 
 We can have a toy example:
 
