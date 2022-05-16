@@ -28,7 +28,7 @@ tuple =
     return (left, right)
 ```
 
-As you can see, relying on `Monad`, allows us to focus on the structure on the input, instead of the structure on the Parser.
+As you can see, relying on `Monad` allows us to focus on the structure of the input, instead of the structure of the parser.
 
 then, we can define our main parser, composition:
 
