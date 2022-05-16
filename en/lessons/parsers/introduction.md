@@ -9,7 +9,7 @@ Parsers are ubiquitous in educational Haskell literature because parser combinat
 
 Parsers, while being mostly associated with compilers and interpreters, can be found everywhere.
 
-Their goal is to take a input data (usually a text or a stream), and produce a structured output (usually a data structure, such as an [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree)), see [this article](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/) for day to day application.
+Their goal is to take input data (usually text or a stream), and produce structured output (usually a data structure, such as an [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree)). See [this article](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/) for day to day application.
 
 Parser Combinators are a way to build parsers by composition.
 
