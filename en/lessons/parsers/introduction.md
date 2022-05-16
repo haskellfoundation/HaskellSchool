@@ -7,7 +7,7 @@ title: Introduction to Parser Combinators
 
 Parsers are ubiquitous in educational Haskell literature because parser combinators can be used to illustrate the power of composition.
 
-Parsers, while being mostly associated to compilers and interpreters, can be found everywhere.
+Parsers, while being mostly associated with compilers and interpreters, can be found everywhere.
 
 Their goal is to take a input data (usually a text or a stream), and produce a structured output (usually a data structure, such as an [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree)), see [this article](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/) for day to day application.
 
