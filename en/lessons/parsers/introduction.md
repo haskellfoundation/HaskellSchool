@@ -60,3 +60,9 @@ which gives us:
 As you can see, running `ReadP` gives all possible parsed results, which can lead to performances issues.
 
 Going further: [Jake Wheat's Intro to Parsing with Parsec in Haskell](http://jakewheat.github.io/intro_to_parsing/)
+
+## Targeted audience
+
+The aim of this topic is to explore Haskell's idioms through the study of different designs.
+
+A minimal understanding of Haskell and it's main abstractions (eg. Functor, Applicative, Monad) is expected and can be gathered in the previous courses.
