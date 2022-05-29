@@ -11,6 +11,7 @@ sections:
   blog: Blog
   contributors: Contributors
   translation_report: Translation Report
+  parsers: Parsers combinators
 
 version_messages:
   outdated: "Some contents of this translation may be outdated."
