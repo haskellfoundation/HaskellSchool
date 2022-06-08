@@ -57,8 +57,8 @@ error:
 Suppose we define a `Message` as a product of two [`Text`](https://hackage.haskell.org/package/text/docs/Data-Text-Lazy.html#t:Text) values:
 
 ```haskell
-import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy as Text
+import Data.Text (Text)
+import qualified Data.Text as Text
 
 data Message = Message { subject :: Text, body :: Text }
 
@@ -235,8 +235,8 @@ This class has two methods: `(==)` and `(/=)`. The `MINIMAL` pragma informs us t
 In this following example, we define a datatype called `CaseInsensitiveText`. It is like `Text`, but with an equality test that disregards differences in capitalization of letters.
 
 ```haskell
-import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy as Text
+import Data.Lazy (Text)
+import qualified Data.Lazy as Text
 
 data CaseInsensitiveText = CaseInsensitiveText{ caseSensitiveText :: Text }
 
@@ -511,8 +511,8 @@ The `Ord` class has seven methods. You can define all of these for your type, bu
 Consider the `CaseInsensitiveText` example from before. Since we customized `Eq`, we should also write a custom `Ord` instance.
 
 ```haskell
-import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy as Text
+import Data.Text (Text)
+import qualified Data.Text as Text
 
 data CaseInsensitiveText = CaseInsensitiveText{ caseSensitiveText :: Text }
 
