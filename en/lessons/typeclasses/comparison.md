@@ -54,7 +54,7 @@ error:
 
 ### Deriving Eq for new types
 
-Suppose we define a `Message` as a product of two [`Text`](https://hackage.haskell.org/package/text/docs/Data-Text-Lazy.html#t:Text) values:
+Suppose we define a `Message` as a record with two [`Text`](https://hackage.haskell.org/package/text/docs/Data-Text-Lazy.html#t:Text) fields:
 
 ```haskell
 import Data.Text (Text)
@@ -103,7 +103,7 @@ Obtaining an `Eq` instance in this way is called "stock deriving" because it tak
 
 #### When Eq cannot be derived
 
-To derive a stock `Eq` instance for a product type like `Message`, all of the constructor's fields must have `Eq` instances. Suppose our type contains an additional field, an `IO` action which sends the message somewhere.
+To derive a stock `Eq` instance for a record like `Message`, all of the constructor's fields must have `Eq` instances. Suppose our type contains an additional field, an `IO` action which sends the message somewhere.
 
 ```haskell
 data Message = Message { subject :: Text, body :: Text, send :: IO () }
