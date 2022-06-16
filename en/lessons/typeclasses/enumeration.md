@@ -526,7 +526,7 @@ data Color = Color Brightness Hue
 ```
 
 ```console?lang=haskell&prompt=ghci>,ghci|
-λ> enumFromTo minBound maxBound :: [Color]
+ghci> enumFromTo minBound maxBound :: [Color]
 [Color Light Red,Color Light Green,Color Light Blue,Color Dark Red,Color Dark Green,Color Dark Blue]
 ```
 
