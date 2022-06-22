@@ -16,6 +16,7 @@ typeclasses:
   - enumeration
   - string-representation
   - monoids
-  - iteration
+  - constructor-classes
   - functors
+  - traversal
   - numbers
