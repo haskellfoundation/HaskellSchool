@@ -19,7 +19,7 @@ You will need to add the following lines to the top of your Haskell source
 file (`.hs`) to be able to run these examples:
 
 ```haskell
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DerivingStrategies, OverloadedStrings #-}
 
 import           Data.Text ( Text )
 import qualified Data.Text as T
@@ -352,7 +352,7 @@ data Vehicle
         { vcColor  :: Text
         , vcWheels :: Int
         }
-    deriving (Eq, Show)
+    deriving stock (Eq, Show)
 ```
 
 ### Pattern Matching the Record Constructor

@@ -12,6 +12,12 @@ import Data.Word (Word8)
 import Numeric.Natural (Natural)
 ```
 
+We also use the deriving-strategies language extension:
+
+```haskell
+{-# language DerivingStrategies #-}
+```
+
 A few other imports and language extensions will be introduced where they are used below.
 
 ## Enum: Enumerable types
@@ -127,7 +133,7 @@ Let's define a datatype representing denominations of paper currency.
 
 ```haskell
 data Bill = One | Five | Ten | Twenty | Fifty | Hundred
-    deriving Show
+    deriving stock Show
 ```
 
 Suppose we want a list of all bills above 10. Presently, this fails because `Bill` does not belong to the `Enum` class:
@@ -143,7 +149,7 @@ The `Bill` type has six constructors. None of the constructors has any fields, t
 
 ```haskell
 data Bill = One | Five | Ten | Twenty | Fifty | Hundred
-    deriving (Enum, Show)
+    deriving stock (Enum, Show)
 ```
 
 Now we get the desired result.
@@ -161,16 +167,16 @@ Another way to get an `Enum` instance is to use newtype deriving. It is common t
 
 ```haskell
 newtype PageCount = PageCount Natural
-    deriving Show
+    deriving stock Show
 ```
 
 `PageCount` is not an enumeration type, so `Enum` cannot be stock derived. However, it is a `newtype` for `Natural`, and `Natural` belongs to the `Enum` class. Therefore `Enum` can be `newtype` derived.
 
 ```haskell
-{-# language DerivingStrategies, GeneralizedNewtypeDeriving #-}
+{-# language GeneralizedNewtypeDeriving #-}
 
 newtype PageCount = PageCount Natural
-    deriving Show
+    deriving stock Show
     deriving newtype Enum
 ```
 
@@ -193,7 +199,7 @@ fromEnum :: Enum a => a -> Int
 Returning to the earlier `Bill` example, the `Int` values that the compiler has automatically associated with each constructor are:
 
 ```haskell
-data Bill = One | Five | Ten | Twenty | Fifty | Hundred   deriving (Enum, Show)
+data Bill = One | Five | Ten | Twenty | Fifty | Hundred   deriving stock (Enum, Show)
          --  0     1      2      3        4        5
 ```
 
@@ -253,22 +259,22 @@ data Position =
     NorthWest | North  | NorthEast
   | West      | Center | East
   | SouthWest | South  | SouthEast
-  deriving (Enum, Show)
+  deriving stock (Enum, Show)
 ```
 
 This is all well and good, and we have an `Enum` instance. But suppose we then decide to define a position as a record comprised of horizontal and vertical positions.
 
 ```haskell
 data Horizontal = West | CenterX | East
-    deriving (Enum, Show)
+    deriving stock (Enum, Show)
 
 data Vertical = North | CenterY | South
-    deriving (Enum, Show)
+    deriving stock (Enum, Show)
 
 data PositionXY = PositionXY
     { positionX :: Horizontal
     , positionY :: Vertical }
-    deriving (Enum, Show)
+    deriving stock (Enum, Show)
 ```
 
 We get a compilation failure:
@@ -339,7 +345,7 @@ Sometimes we use module encapsulation to impose restrictions on what values are 
 module Percent (Percent, toInt, clamp, validate) where
 
 newtype Percent = Percent Int
-    deriving Show
+    deriving stock Show
 
 toInt :: Percent -> Int
 toInt (Percent x) = x
@@ -472,14 +478,14 @@ Suppose we want to define a datatype that represents the four [XMPP](https://xmp
 
 ```haskell
 data ChatStatus = Away | Available | DoNotDisturb | ExtendedAway
-    deriving (Eq, Ord, Show)
+    deriving stock (Eq, Ord, Show)
 ```
 
 Because this is an enumeration type (it has no fields), we can derive stock `Enum` and `Bounded` instances for it by simply adding these classes to the `deriving` clause.
 
 ```haskell
 data ChatStatus = Away | Available | DoNotDisturb | ExtendedAway
-    deriving (Eq, Ord, Show, Enum, Bounded)
+    deriving stock (Eq, Ord, Show, Enum, Bounded)
 ```
 
 The first constructor is the "min bound", the last constructor is the "max bound", and `[minBound ..]` lists all of the constructors in order.
@@ -515,13 +521,13 @@ It is still possible to automatically derive `Enum` and `Bounded` for `Color`, b
 import Generic.Data (Generic, FiniteEnumeration (..))
 
 data Brightness = Light | Dark
-    deriving (Enum, Bounded, Show)
+    deriving stock (Enum, Bounded, Show)
 
 data Hue = Red | Green | Blue
-    deriving (Enum, Bounded, Show)
+    deriving stock (Enum, Bounded, Show)
 
 data Color = Color Brightness Hue
-    deriving (Generic, Show)
+    deriving stock (Generic, Show)
     deriving (Enum, Bounded) via (FiniteEnumeration Color)
 ```
 

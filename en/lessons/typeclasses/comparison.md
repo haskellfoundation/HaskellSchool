@@ -5,7 +5,11 @@ title: "Comparing values: Eq and Ord"
 
 {% include toc.html %}
 
-In this lesson, we use [`text`](https://hackage.haskell.org/package/text), [`containers`](https://hackage.haskell.org/package/containers), and the `OverloadedStrings` language extension.
+In this lesson, we use the [`text`](https://hackage.haskell.org/package/text) and [`containers`](https://hackage.haskell.org/package/containers) packages. We also require the following language extensions:
+
+```haskell
+{-# language DerivingStrategies, OverloadedStrings #-}
+```
 
 ## Eq: Distinguishable values
 
@@ -87,7 +91,7 @@ We do not need to define `(==)` explicitly, because the compiler can generate it
 
 ```haskell
 data Message = Message { subject :: Text, body :: Text }
-    deriving Eq
+    deriving stock Eq
 ```
 
 This `Message` type now has an instance of `Eq`, and so its values can be tested for equality.
@@ -107,7 +111,7 @@ To derive a stock `Eq` instance for a record like `Message`, all of the construc
 
 ```haskell
 data Message = Message { subject :: Text, body :: Text, send :: IO () }
-    deriving Eq
+    deriving stock Eq
 ```
 
 Since this third field cannot be tested for equality, the compiler cannot derive `Eq` for the `Message` type, and it will tell us so as the compilation fails.
@@ -457,7 +461,7 @@ You can get a default `Ord` instance by deriving. For the `Message` example that
 
 ```haskell
 data Message = Message { subject :: Text, body :: Text }
-    deriving (Eq, Ord)
+    deriving stock (Eq, Ord)
 ```
 
 ```console?lang=haskell&prompt=ghci>,ghci|
@@ -468,7 +472,7 @@ GT
 When you define a type with multiple constructors that can be arranged in some meaningful order, list them from least to greatest.
 
 ```haskell
-data Medal = Bronze | Silver | Gold deriving (Eq, Ord)
+data Medal = Bronze | Silver | Gold deriving stock (Eq, Ord)
 ```
 
 The derived `Ord` instance respects the way the constructors are ordered in the source code.

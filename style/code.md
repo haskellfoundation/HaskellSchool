@@ -25,6 +25,7 @@ import qualified Data.Vector as V
 ```
 * For terminal commands, _shell_ code blocks must be used, and the prompt should be `$`
 * Keep examples simple when possible
+* Every `deriving` clause should use an explicit deriving strategy (the `DerivingStrategies` language extension), e.g. `deriving stock (Eq, Show)` instead of `deriving (Eq, Show)`.
 
 ## Typeclasses
 
