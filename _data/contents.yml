@@ -15,7 +15,7 @@ typeclasses:
   - comparison
   - enumeration
   - string-representation
-  - iteration
   - monoids
+  - iteration
   - functors
   - numbers
