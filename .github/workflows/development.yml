@@ -11,6 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Install nodeJS
+        run: |
+          sudo apt install -y nodejs
+          node --version
+          echo $PATH
       - uses: helaili/jekyll-action@v2
         with:
           build_only: true
+        env:
+          EXECJS_RUNTIME: Node
